@@ -203,3 +203,53 @@
     color: #6c757d;
     line-height: 1.4;
 }
+
+/* --- Admin Edit Button --- */
+.title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.car-title {
+    margin-bottom: 0;
+}
+.admin-edit-btn {
+    flex-shrink: 0;
+    margin-left: 20px;
+}
+
+/* --- Interactive Price Calculator --- */
+.price-calculator .box-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+.price-tab {
+    display: flex;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 15px;
+}
+.price-tab .tab {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #555;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; /* Overlap the container's border */
+}
+.price-tab .tab.cur-tab {
+    color: #007bff;
+    border-bottom-color: #007bff;
+    font-weight: 600;
+}
+.price-detail p {
+    margin: 0 0 8px 0;
+}
+.price-desp {
+    font-size: 0.85rem;
+    color: #6c757d;
+    line-height: 1.4;
+    margin-top: 15px;
+    border-top: 1px solid #e0e0e0;
+    padding-top: 15px;
+}

@@ -33,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $drivetrain = trim($_POST['drivetrain'] ?? '');
     $body_type = trim($_POST['body_type'] ?? '');
     $accessories = trim($_POST['accessories'] ?? '');
+    $exterior_color = trim($_POST['exterior_color'] ?? '');
+    $seats = filter_input(INPUT_POST, 'seats', FILTER_VALIDATE_INT);
+    $dimensions = trim($_POST['dimensions'] ?? '');
+    $weight = filter_input(INPUT_POST, 'weight', FILTER_VALIDATE_INT);
 
     if (empty($brand)) $errors[] = 'Brand is required.';
     // ... (Add all other validations as in add_car.php)
@@ -103,6 +107,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         transmission = :transmission,
                         drivetrain = :drivetrain,
                         body_type = :body_type,
+                        exterior_color = :exterior_color,
+                        seats = :seats,
+                        dimensions = :dimensions,
+                        weight = :weight,
                         description = :description,
                         accessories = :accessories,
                         images = :images
@@ -119,6 +127,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':transmission' => $transmission,
                 ':drivetrain' => $drivetrain,
                 ':body_type' => $body_type,
+                ':exterior_color' => $exterior_color,
+                ':seats' => $seats,
+                ':dimensions' => $dimensions,
+                ':weight' => $weight,
                 ':description' => $description,
                 ':accessories' => $accessories,
                 ':images' => implode(',', $image_filenames),
@@ -198,6 +210,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-group" style="flex: 1;">
             <label for="body_type">Body Type</label>
             <input type="text" id="body_type" name="body_type" value="<?= _e($car['body_type'] ?? '') ?>" placeholder="e.g., Sedan, SUV, Coupe">
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="exterior_color">Exterior Color</label>
+            <input type="text" id="exterior_color" name="exterior_color" value="<?= _e($car['exterior_color'] ?? '') ?>">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="seats">Seats</label>
+            <input type="number" id="seats" name="seats" value="<?= _e($car['seats'] ?? '') ?>">
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="dimensions">Dimensions (LxWxH mm)</label>
+            <input type="text" id="dimensions" name="dimensions" value="<?= _e($car['dimensions'] ?? '') ?>" placeholder="e.g., 4885x1840x1445">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" name="weight" value="<?= _e($car['weight'] ?? '') ?>">
         </div>
     </div>
 

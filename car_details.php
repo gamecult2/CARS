@@ -74,7 +74,12 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
             <a href="index.php">Home</a> &gt; <a href="index.php?brand=<?= _e($car['brand']) ?>"><?= _e($car['brand']) ?></a> &gt; <?= _e($car['model']) ?>
         </div>
 
-        <h1 class="car-title"><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?></h1>
+        <div class="title-bar">
+            <h1 class="car-title"><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?></h1>
+            <?php if (is_admin_logged_in()): ?>
+                <a href="/Admin/edit_car.php?id=<?= $car['id'] ?>" class="btn admin-edit-btn" target="_blank">Edit Car</a>
+            <?php endif; ?>
+        </div>
 
         <div class="details-layout">
             <div class="details-main">
@@ -104,6 +109,10 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
                         <li><span>Model</span><strong><?= _e($car['model']) ?></strong></li>
                         <li><span>Year</span><strong><?= _e($car['year']) ?></strong></li>
                         <li><span>Body Type</span><strong><?= _e($car['body_type']) ?></strong></li>
+                        <li><span>Exterior Color</span><strong><?= _e($car['exterior_color']) ?></strong></li>
+                        <li><span>Seats</span><strong><?= _e($car['seats']) ?></strong></li>
+                        <li><span>Dimensions</span><strong><?= _e($car['dimensions']) ?></strong></li>
+                        <li><span>Weight (kg)</span><strong><?= _e($car['weight']) ?></strong></li>
                         <li><span>Mileage</span><strong><?= number_format($car['mileage']) ?> km</strong></li>
                         <li><span>Fuel Type</span><strong><?= _e($car['fuel_type']) ?></strong></li>
                         <li><span>Transmission</span><strong><?= _e($car['transmission']) ?></strong></li>
@@ -128,20 +137,23 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
             </div>
 
             <aside class="details-sidebar">
-                <div class="price-card card">
-                    <h4>Price Breakdown</h4>
-                    <ul class="price-breakdown">
-                        <li><span>Vehicle Price:</span><strong>$<?= number_format($car['price']) ?></strong></li>
-                        <li><span>Inspection Fee:</span><span>$65</span></li>
-                        <li><span>Export Handling Fee:</span><span>$400</span></li>
-                        <li><span>Service Fee:</span><span>$300</span></li>
-                        <li><span>Banking Transfer Fee:</span><span>$50</span></li>
-                    </ul>
-                    <div class="total-price">
-                        <span>EXW Total:</span>
-                        <strong>$<?= number_format($car['price'] + 65 + 400 + 300 + 50) ?></strong>
+                <div class="price-calculator card">
+                    <div class="box-title">Total Price Calculator</div>
+                    <div class="price-tab">
+                        <span class="tab cur-tab" onclick="updatePrice('EXW', this)">EXW</span>
+                        <span class="tab" onclick="updatePrice('FOB', this)">FOB</span>
+                        <span class="tab" onclick="updatePrice('CFR', this)">CFR</span>
+                        <span class="tab" onclick="updatePrice('CIF', this)">CIF</span>
                     </div>
-                    <small class="price-info">This is an estimated price. Does not include shipping (FOB, CFR, CIF). Please contact us for a full quote.</small>
+                    <div class="price-detail" id="price-breakdown-container">
+                        <!-- JS will populate this -->
+                    </div>
+                    <div class="total-price">
+                        = Total Price($): <span class="price" id="total-price-display"></span>
+                    </div>
+                    <div class="price-desp" id="price-term-description">
+                        <!-- JS will populate this -->
+                    </div>
                 </div>
 
                 <div class="inquiry-card card">
@@ -174,6 +186,70 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
         function changeImage(newSrc) {
             document.getElementById('main-car-image').src = newSrc;
         }
+
+        const vehiclePrice = <?= $car['price'] ?>;
+        const fees = {
+            inspection: 65,
+            handling: 400,
+            service: 300,
+            banking: 50,
+            transport: 250, // Example fee
+            freight: 1200,   // Example fee
+            insurance: 350   // Example fee
+        };
+
+        const terms = {
+            EXW: {
+                desc: 'The price at the vehicle\'s location, without domestic logistics or international freight. The buyer is responsible for all costs from the location to the final destination.',
+                included: ['inspection', 'handling', 'service', 'banking']
+            },
+            FOB: {
+                desc: 'Includes the cost of delivering the vehicle to the port and loading it onto the ship. Does not include international freight or insurance.',
+                included: ['inspection', 'handling', 'service', 'banking', 'transport']
+            },
+            CFR: {
+                desc: 'Includes the cost of the vehicle, all export fees, and international freight to the destination port. Does not include insurance.',
+                included: ['inspection', 'handling', 'service', 'banking', 'transport', 'freight']
+            },
+            CIF: {
+                desc: 'Includes the cost of the vehicle, all export fees, international freight, and insurance to the destination port.',
+                included: ['inspection', 'handling', 'service', 'banking', 'transport', 'freight', 'insurance']
+            }
+        };
+
+        const breakdownContainer = document.getElementById('price-breakdown-container');
+        const totalPriceDisplay = document.getElementById('total-price-display');
+        const termDescription = document.getElementById('price-term-description');
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('en-US').format(value);
+        }
+
+        function updatePrice(term, clickedTab) {
+            // Update active tab style
+            document.querySelectorAll('.price-tab .tab').forEach(tab => tab.classList.remove('cur-tab'));
+            clickedTab.classList.add('cur-tab');
+
+            const termData = terms[term];
+            let totalPrice = vehiclePrice;
+            let breakdownHtml = `<p>+ Vehicle Price ($)：${formatCurrency(vehiclePrice)}</p>`;
+
+            termData.included.forEach(feeKey => {
+                const feeValue = fees[feeKey];
+                totalPrice += feeValue;
+                const feeName = feeKey.charAt(0).toUpperCase() + feeKey.slice(1);
+                breakdownHtml += `<p>+ ${feeName} Fee ($)：${formatCurrency(feeValue)}</p>`;
+            });
+
+            breakdownContainer.innerHTML = breakdownHtml;
+            totalPriceDisplay.innerText = `${term} ${formatCurrency(totalPrice)}`;
+            termDescription.innerText = termData.desc;
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePrice('EXW', document.querySelector('.price-tab .tab'));
+        });
     </script>
 
     <footer>

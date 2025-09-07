@@ -19,6 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $drivetrain = trim($_POST['drivetrain'] ?? '');
     $body_type = trim($_POST['body_type'] ?? '');
     $accessories = trim($_POST['accessories'] ?? '');
+    $exterior_color = trim($_POST['exterior_color'] ?? '');
+    $seats = filter_input(INPUT_POST, 'seats', FILTER_VALIDATE_INT);
+    $dimensions = trim($_POST['dimensions'] ?? '');
+    $weight = filter_input(INPUT_POST, 'weight', FILTER_VALIDATE_INT);
 
     if (empty($brand)) $errors[] = 'Brand is required.';
     if (empty($model)) $errors[] = 'Model is required.';
@@ -67,8 +71,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Insert into Database ---
     if (empty($errors)) {
         try {
-            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, description, accessories, images)
-                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :description, :accessories, :images)";
+            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, exterior_color, seats, dimensions, weight, description, accessories, images)
+                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :exterior_color, :seats, :dimensions, :weight, :description, :accessories, :images)";
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
@@ -81,6 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':transmission' => $transmission,
                 ':drivetrain' => $drivetrain,
                 ':body_type' => $body_type,
+                ':exterior_color' => $exterior_color,
+                ':seats' => $seats,
+                ':dimensions' => $dimensions,
+                ':weight' => $weight,
                 ':description' => $description,
                 ':accessories' => $accessories,
                 ':images' => implode(',', $image_filenames)
@@ -163,6 +171,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="form-group" style="flex: 1;">
             <label for="body_type">Body Type</label>
             <input type="text" id="body_type" name="body_type" value="<?= _e($_POST['body_type'] ?? '') ?>" placeholder="e.g., Sedan, SUV, Coupe">
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="exterior_color">Exterior Color</label>
+            <input type="text" id="exterior_color" name="exterior_color" value="<?= _e($_POST['exterior_color'] ?? '') ?>">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="seats">Seats</label>
+            <input type="number" id="seats" name="seats" value="<?= _e($_POST['seats'] ?? '') ?>">
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="dimensions">Dimensions (LxWxH mm)</label>
+            <input type="text" id="dimensions" name="dimensions" value="<?= _e($_POST['dimensions'] ?? '') ?>" placeholder="e.g., 4885x1840x1445">
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" name="weight" value="<?= _e($_POST['weight'] ?? '') ?>">
         </div>
     </div>
 

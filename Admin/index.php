@@ -75,28 +75,41 @@ if (!$is_logged_in) {
 
 // --- If we reach here, the admin is logged in. Show the dashboard. ---
 $page_title = 'Dashboard';
+
+// Fetch stats for the dashboard
+$total_cars = $pdo->query("SELECT COUNT(*) FROM cars")->fetchColumn();
+$total_users = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+$total_conversations = $pdo->query("SELECT COUNT(*) FROM conversations")->fetchColumn();
+
+
 require_once 'partials/header.php';
 ?>
 
 <h3>Dashboard Overview</h3>
-<p>Welcome to the admin panel. Here you can manage car listings, users, and inquiries.</p>
+<p>Welcome to the admin panel. Here you can manage car listings, users, and conversations.</p>
 <p>Select an option from the navigation menu on the left to get started.</p>
 
-<!-- Example Stats (can be made dynamic) -->
 <div class="dashboard-stats">
     <div class="stat-card">
         <h4>Total Cars</h4>
-        <p>15</p>
+        <p><?= $total_cars ?></p>
     </div>
     <div class="stat-card">
         <h4>Total Users</h4>
-        <p>8</p>
+        <p><?= $total_users ?></p>
     </div>
     <div class="stat-card">
-        <h4>New Inquiries</h4>
-        <p>4</p>
+        <h4>Total Conversations</h4>
+        <p><?= $total_conversations ?></p>
     </div>
 </div>
+
+<style>
+.dashboard-stats { display: flex; gap: 20px; margin-top: 30px; }
+.stat-card { flex: 1; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+.stat-card h4 { margin-top: 0; font-size: 1rem; color: #4a5568; }
+.stat-card p { font-size: 2.5rem; font-weight: bold; color: #2c5282; margin-bottom: 0; }
+</style>
 
 
 <?php
