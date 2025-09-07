@@ -1,0 +1,39 @@
+/* --- Notifications Page Styles --- */
+
+.notifications-list {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.notification-item {
+    background: #fff;
+    border-left: 5px solid #007bff; /* Blue for unread */
+    margin-bottom: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: background-color 0.3s;
+}
+
+.notification-item.read {
+    border-left-color: #ccc;
+}
+
+.notification-item a {
+    display: block;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: #333;
+}
+
+.notification-item:hover {
+    background-color: #f9f9f9;
+}
+
+.notification-item .message {
+    margin: 0 0 5px 0;
+    font-weight: 500;
+}
+
+.notification-item .time {
+    font-size: 0.85rem;
+    color: #777;
+}

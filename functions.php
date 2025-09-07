@@ -287,4 +287,164 @@ function get_brands_with_count(PDO $pdo): array {
     $stmt = $pdo->query("SELECT brand, COUNT(*) as car_count FROM cars GROUP BY brand ORDER BY brand ASC");
     return $stmt->fetchAll();
 }
+
+// --- Order Management Functions ---
+
+/**
+ * Creates a new order and logs the initial history event.
+ */
+function create_order(PDO $pdo, int $user_id, int $car_id): int {
+    $stmt = $pdo->prepare("INSERT INTO orders (user_id, car_id) VALUES (:user_id, :car_id)");
+    $stmt->execute([':user_id' => $user_id, ':car_id' => $car_id]);
+    $order_id = (int)$pdo->lastInsertId();
+
+    add_order_history($pdo, $order_id, 'Order Placed', 'User placed a new order.', $user_id, 'user');
+
+    // Notify Admins/Mods - for simplicity, we'll notify the admin with ID 1
+    create_notification($pdo, 1, "New order #{$order_id} has been placed.", "Admin/view_order.php?id={$order_id}");
+
+    return $order_id;
+}
+
+/**
+ * Adds a new entry to an order's history log.
+ */
+function add_order_history(PDO $pdo, int $order_id, string $action, string $description, int $actor_id, string $actor_type): bool {
+    $stmt = $pdo->prepare(
+        "INSERT INTO order_history (order_id, action, description, actor_id, actor_type) VALUES (:order_id, :action, :description, :actor_id, :actor_type)"
+    );
+    return $stmt->execute([
+        ':order_id' => $order_id,
+        ':action' => $action,
+        ':description' => $description,
+        ':actor_id' => $actor_id,
+        ':actor_type' => $actor_type
+    ]);
+}
+
+/**
+ * Fetches a single order with all its related data (history, messages, files).
+ */
+function get_order_details(PDO $pdo, int $order_id): ?array {
+    $order = $pdo->prepare("SELECT o.*, u.name as user_name, u.email as user_email, c.brand, c.model, c.year FROM orders o JOIN users u ON o.user_id = u.id JOIN cars c ON o.car_id = c.id WHERE o.id = :id");
+    $order->execute([':id' => $order_id]);
+    $result = $order->fetch();
+
+    if (!$result) return null;
+
+    $history = $pdo->prepare("SELECT * FROM order_history WHERE order_id = :id ORDER BY created_at ASC");
+    $history->execute([':id' => $order_id]);
+    $result['history'] = $history->fetchAll();
+
+    $messages = $pdo->prepare("SELECT * FROM order_messages WHERE order_id = :id ORDER BY created_at ASC");
+    $messages->execute([':id' => $order_id]);
+    $result['messages'] = $messages->fetchAll();
+
+    $files = $pdo->prepare("SELECT * FROM order_files WHERE order_id = :id ORDER BY created_at DESC");
+    $files->execute([':id' => $order_id]);
+    $result['files'] = $files->fetchAll();
+
+    return $result;
+}
+
+/**
+ * Adds a message to a specific order.
+ */
+function add_order_message(PDO $pdo, int $order_id, int $sender_id, string $sender_type, string $message): bool {
+    $stmt = $pdo->prepare("INSERT INTO order_messages (order_id, sender_id, sender_type, message) VALUES (:order_id, :sender_id, :sender_type, :message)");
+    return $stmt->execute([
+        ':order_id' => $order_id,
+        ':sender_id' => $sender_id,
+        ':sender_type' => $sender_type,
+        ':message' => $message,
+    ]);
+}
+
+/**
+ * Adds a file record to a specific order.
+ */
+function add_order_file(PDO $pdo, int $order_id, int $uploader_id, string $uploader_type, string $file_name, string $file_path): bool {
+    $stmt = $pdo->prepare("INSERT INTO order_files (order_id, uploader_id, uploader_type, file_name, file_path) VALUES (:order_id, :uploader_id, :uploader_type, :file_name, :file_path)");
+    return $stmt->execute([
+        ':order_id' => $order_id,
+        ':uploader_id' => $uploader_id,
+        ':uploader_type' => $uploader_type,
+        ':file_name' => $file_name,
+        ':file_path' => $file_path,
+    ]);
+}
+
+/**
+ * Fetches all orders for a specific user.
+ */
+function get_orders_for_user(PDO $pdo, int $user_id): array {
+    $stmt = $pdo->prepare("SELECT o.*, c.brand, c.model, c.year FROM orders o JOIN cars c ON o.car_id = c.id WHERE o.user_id = :user_id ORDER BY o.updated_at DESC");
+    $stmt->execute([':user_id' => $user_id]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Fetches all orders for the admin panel.
+ */
+function get_all_orders(PDO $pdo, string $status_filter = ''): array {
+    $sql = "SELECT o.*, u.name as user_name, c.brand, c.model FROM orders o JOIN users u ON o.user_id = u.id JOIN cars c ON o.car_id = c.id";
+    if (!empty($status_filter)) {
+        $sql .= " WHERE o.order_status = :status";
+    }
+    $sql .= " ORDER BY o.updated_at DESC";
+    $stmt = $pdo->prepare($sql);
+    if (!empty($status_filter)) {
+        $stmt->execute([':status' => $status_filter]);
+    } else {
+        $stmt->execute();
+    }
+    return $stmt->fetchAll();
+}
+
+/**
+ * Creates an in-app notification for a user.
+ */
+function create_notification(PDO $pdo, int $user_id, string $message, string $link): bool {
+    $stmt = $pdo->prepare("INSERT INTO notifications (user_id, message, link) VALUES (:user_id, :message, :link)");
+    return $stmt->execute([':user_id' => $user_id, ':message' => $message, ':link' => $link]);
+}
+
+/**
+ * Placeholder function for sending emails.
+ */
+function send_order_email(string $to, string $subject, string $message): bool {
+    // In a real application, this would use a library like PHPMailer
+    // and connect to an SMTP server. For now, it's a placeholder.
+    // mail($to, $subject, $message);
+    error_log("Email supposed to be sent to {$to} with subject '{$subject}'");
+    return true;
+}
+
+// --- Notification Functions ---
+
+/**
+ * Gets the count of unread notifications for a user.
+ */
+function get_unread_notification_count(PDO $pdo, int $user_id): int {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM notifications WHERE user_id = :user_id AND is_read = 0");
+    $stmt->execute([':user_id' => $user_id]);
+    return (int)$stmt->fetchColumn();
+}
+
+/**
+ * Gets all notifications for a user.
+ */
+function get_notifications_for_user(PDO $pdo, int $user_id): array {
+    $stmt = $pdo->prepare("SELECT * FROM notifications WHERE user_id = :user_id ORDER BY created_at DESC");
+    $stmt->execute([':user_id' => $user_id]);
+    return $stmt->fetchAll();
+}
+
+/**
+ * Marks all unread notifications for a user as read.
+ */
+function mark_notifications_as_read(PDO $pdo, int $user_id): bool {
+    $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = :user_id AND is_read = 0");
+    return $stmt->execute([':user_id' => $user_id]);
+}
 ?>

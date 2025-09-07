@@ -18,23 +18,19 @@ if (!$car) {
 $errors = [];
 $success_message = '';
 
-// --- Handle Inquiry Form Submission ---
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_user_logged_in()) {
-    $message = trim($_POST['message'] ?? '');
+// --- Handle Place Order Form Submission ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
+    if (is_user_logged_in()) {
+        $user_id = $_SESSION['user_id'];
 
-    if (empty($message)) {
-        $errors[] = 'Message cannot be empty.';
-    }
+        // Create the order
+        $order_id = create_order($pdo, $user_id, $car_id);
 
-    if (empty($errors)) {
-        // Get or create a conversation for this car and user
-        $conversation_id = get_or_create_conversation_for_car($pdo, $_SESSION['user_id'], $car_id);
-
-        // Send the message
-        send_chat_message($pdo, $conversation_id, $_SESSION['user_id'], 'user', $message);
-
-        // Redirect to the chat view
-        redirect("chat_view.php?id=$conversation_id");
+        // Redirect to the new order details page
+        redirect("order_details.php?id=$order_id");
+    } else {
+        // Should not happen if button is hidden, but as a fallback
+        redirect('login.php');
     }
 }
 
@@ -157,26 +153,14 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
                 </div>
 
                 <div class="inquiry-card card">
-                    <h3>Interested? Send a Message</h3>
+                    <h3>Purchase This Car</h3>
                     <?php if (is_user_logged_in()): ?>
-                        <?php if ($success_message): ?>
-                            <div class="form-success"><?= _e($success_message) ?></div>
-                        <?php else: ?>
-                            <?php if (!empty($errors)): ?>
-                                <div class="form-errors">
-                                    <?php foreach ($errors as $error): ?><p><?= _e($error) ?></p><?php endforeach; ?>
-                                </div>
-                            <?php endif; ?>
-                            <form action="car_details.php?id=<?= $car_id ?>" method="POST">
-                                <div class="form-group">
-                                    <label for="message">Your Message</label>
-                                    <textarea id="message" name="message" rows="5" required placeholder="I'm interested in this car..."></textarea>
-                                </div>
-                                <button type="submit" class="btn">Send Inquiry</button>
-                            </form>
-                        <?php endif; ?>
+                        <form action="car_details.php?id=<?= $car_id ?>" method="POST">
+                            <p>Click the button below to start the purchasing process. Our team will contact you shortly.</p>
+                            <button type="submit" name="place_order" class="btn btn-success">Place Order</button>
+                        </form>
                     <?php else: ?>
-                        <p>Please <a href="login.php?redirect=car_details.php?id=<?= $car_id ?>">log in</a> or <a href="register.php">register</a> to send a message.</p>
+                        <p>Please <a href="login.php?redirect=car_details.php?id=<?= $car_id ?>">log in</a> or <a href="register.php">register</a> to place an order.</p>
                     <?php endif; ?>
                 </div>
             </aside>

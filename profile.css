@@ -1,0 +1,72 @@
+/* --- Profile Page Styles --- */
+
+.profile-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.profile-main {
+    flex: 3;
+    min-width: 300px;
+}
+
+.profile-sidebar {
+    flex: 1;
+    min-width: 250px;
+}
+
+.profile-main h2 {
+    margin-top: 0;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+}
+
+.orders-table th, .orders-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.orders-table th {
+    background-color: #f7fafc;
+    font-weight: 600;
+}
+
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fff;
+    background-color: #6c757d; /* Default */
+}
+.status-pending { background-color: #ffc107; color: #333; }
+.status-processing { background-color: #17a2b8; }
+.status-documents-requested { background-color: #fd7e14; }
+.status-ready-for-pickup { background-color: #28a745; }
+.status-completed { background-color: #28a745; }
+.status-cancelled { background-color: #dc3545; }
+
+
+.account-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.account-card h3 {
+    margin-top: 0;
+}
+.account-card .btn {
+    width: 100%;
+    margin-top: 15px;
+}
