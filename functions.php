@@ -234,4 +234,15 @@ function get_conversation_by_id(PDO $pdo, int $conversation_id, ?int $user_id, b
 
     return $conversation;
 }
+
+/**
+ * Gets all distinct car brands and the count of cars for each.
+ *
+ * @param PDO $pdo
+ * @return array
+ */
+function get_brands_with_count(PDO $pdo): array {
+    $stmt = $pdo->query("SELECT brand, COUNT(*) as car_count FROM cars GROUP BY brand ORDER BY brand ASC");
+    return $stmt->fetchAll();
+}
 ?>
