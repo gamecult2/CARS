@@ -1,0 +1,100 @@
+/* --- Chat System Styles --- */
+
+.chat-subject {
+    font-size: 1.8rem;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.chat-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+}
+
+.chat-window {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message {
+    display: flex;
+    max-width: 70%;
+}
+
+.message.sent {
+    align-self: flex-end;
+}
+
+.message.received {
+    align-self: flex-start;
+}
+
+.message-bubble {
+    padding: 10px 15px;
+    border-radius: 18px;
+    position: relative;
+}
+
+.message.sent .message-bubble {
+    background-color: #007bff;
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message.received .message-bubble {
+    background-color: #e9ecef;
+    color: #333;
+    border-bottom-left-radius: 4px;
+}
+
+.message-sender {
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+    display: none; /* Hidden for a cleaner look, can be enabled */
+}
+
+.message-time {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.message.sent .message-time {
+    color: #f0f0f0;
+}
+
+.chat-form {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.chat-form textarea {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    resize: none;
+    margin-right: 15px;
+    height: 40px; /* Initial height */
+    transition: height 0.2s;
+}
+
+.chat-form textarea:focus {
+    outline: none;
+    height: 80px;
+}
+
+.chat-form .btn {
+    flex-shrink: 0;
+}

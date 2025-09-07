@@ -1,46 +1,61 @@
-/* --- Car Details Page Specific Styles --- */
+/* --- Redesigned Car Details Page Styles --- */
 
-.car-details-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 40px;
+.breadcrumb {
+    padding: 10px 0;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.breadcrumb a {
+    color: #007bff;
+}
+
+.car-title {
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+}
+
+.details-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+}
+
+.details-main {
+    flex: 3; /* Takes up 3 parts of the space */
+    min-width: 300px;
+}
+
+.details-sidebar {
+    flex: 2; /* Takes up 2 parts of the space */
+    min-width: 300px;
+}
+
+.card {
     background: #fff;
-    padding: 30px;
+    padding: 25px;
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
 }
 
-@media (min-width: 992px) {
-    .car-details-layout {
-        grid-template-columns: 2fr 1fr;
-        grid-template-areas:
-            "gallery info"
-            "gallery inquiry";
-    }
-}
-
-/* --- Image Gallery --- */
-.car-gallery {
-    grid-area: gallery;
-}
-
-.car-gallery .main-image {
+/* --- Gallery --- */
+.gallery .main-image img {
     width: 100%;
     height: auto;
-    max-height: 500px;
-    object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 15px;
     border: 1px solid #eee;
 }
 
-.car-gallery .thumbnail-images {
+.gallery .thumbnails {
     display: flex;
     gap: 10px;
+    margin-top: 15px;
     flex-wrap: wrap;
 }
 
-.car-gallery .thumbnail-images img {
+.gallery .thumbnails .thumbnail-item {
     width: 100px;
     height: 75px;
     object-fit: cover;
@@ -50,78 +65,58 @@
     transition: border-color 0.3s ease;
 }
 
-.car-gallery .thumbnail-images img:hover,
-.car-gallery .thumbnail-images img.active {
+.gallery .thumbnails .thumbnail-item:hover {
     border-color: #007bff;
 }
 
-/* --- Car Info --- */
-.car-info {
-    grid-area: info;
-}
-
-.car-info h1 {
-    font-size: 2.2rem;
+/* --- Specs/Description Sections --- */
+.specs-section h3, .description-section h3 {
     margin-top: 0;
-    margin-bottom: 10px;
-}
-
-.car-info .price {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #007bff;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
     margin-bottom: 20px;
 }
 
-.car-info h3 {
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 10px;
-    margin-top: 30px;
-    margin-bottom: 15px;
-}
-
-.car-info ul {
+.specs-list {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.car-info ul li {
-    padding: 8px 0;
+.specs-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
     border-bottom: 1px solid #f5f5f5;
 }
 
-.car-info ul li:last-child {
+.specs-list li:last-child {
     border-bottom: none;
 }
 
-.car-info p {
-    line-height: 1.7;
+.specs-list li span {
+    color: #555;
 }
 
-/* --- Inquiry Form --- */
-.car-inquiry {
-    grid-area: inquiry;
-    background: #f9f9f9;
-    padding: 30px;
-    border-radius: 8px;
+/* --- Sidebar Cards --- */
+.price-card .price-display {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: #007bff;
+    margin-bottom: 10px;
 }
 
-.car-inquiry h3 {
-    margin-top: 0;
-}
-
-.car-inquiry .form-group {
+.inquiry-card .form-group {
     margin-bottom: 15px;
 }
 
-.car-inquiry label {
+.inquiry-card label {
     display: block;
     margin-bottom: 5px;
     font-weight: 600;
 }
 
-.car-inquiry textarea {
+.inquiry-card textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ccc;
@@ -130,15 +125,18 @@
     resize: vertical;
 }
 
-.car-inquiry .btn {
+.inquiry-card .btn {
     width: 100%;
 }
 
-.car-inquiry p {
-    text-align: center;
+/* --- Responsive --- */
+@media (max-width: 992px) {
+    .details-layout {
+        flex-direction: column;
+    }
 }
 
-/* Re-using auth.css message styles */
+/* --- Re-using auth.css message styles --- */
 .form-errors, .form-success {
     padding: 15px;
     margin-bottom: 20px;

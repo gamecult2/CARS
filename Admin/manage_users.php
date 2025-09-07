@@ -21,6 +21,8 @@ $users = $stmt->fetchAll();
 
 <?php if (isset($_GET['status']) && $_GET['status'] == 'deleted'): ?>
     <div class="alert alert-success">User has been successfully deleted.</div>
+<?php elseif (isset($_GET['status']) && $_GET['status'] == 'updated'): ?>
+    <div class="alert alert-success">User has been successfully updated.</div>
 <?php endif; ?>
 
 <div class="table-container">
@@ -47,6 +49,7 @@ $users = $stmt->fetchAll();
                         <td><?= _e($user['email']) ?></td>
                         <td><?= date("F j, Y, g:i a", strtotime($user['registration_date'])) ?></td>
                         <td class="actions">
+                            <a href="edit_user.php?id=<?= $user['id'] ?>" class="btn btn-sm">Edit</a>
                             <a href="manage_users.php?action=delete&id=<?= $user['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user? This will also delete all their messages.');">Delete</a>
                         </td>
                     </tr>

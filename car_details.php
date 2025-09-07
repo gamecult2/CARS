@@ -27,18 +27,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && is_user_logged_in()) {
     }
 
     if (empty($errors)) {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO messages (user_id, car_id, message) VALUES (:user_id, :car_id, :message)");
-            $stmt->execute([
-                ':user_id' => $_SESSION['user_id'],
-                ':car_id' => $car_id,
-                ':message' => $message,
-            ]);
-            $success_message = "Your inquiry has been sent successfully!";
-        } catch (PDOException $e) {
-            $errors[] = "An error occurred. Please try again.";
-            // Log error: error_log($e->getMessage());
-        }
+        // Get or create a conversation for this car and user
+        $conversation_id = get_or_create_conversation_for_car($pdo, $_SESSION['user_id'], $car_id);
+
+        // Send the message
+        send_chat_message($pdo, $conversation_id, $_SESSION['user_id'], 'user', $message);
+
+        // Redirect to the chat view
+        redirect("chat_view.php?id=$conversation_id");
     }
 }
 
@@ -74,64 +70,82 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
     </header>
 
     <main class="container">
-        <div class="car-details-layout">
-            <!-- Car Images Section -->
-            <div class="car-gallery">
-                <?php if (!empty($images)): ?>
-                    <img src="images/<?= _e(trim($images[0])) ?>" alt="Main car image" class="main-image">
-                    <?php if (count($images) > 1): ?>
-                        <div class="thumbnail-images">
-                            <?php foreach ($images as $img): ?>
-                                <img src="images/<?= _e(trim($img)) ?>" alt="Car thumbnail">
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                <?php else: ?>
-                    <img src="assets/placeholder.png" alt="No image available" class="main-image">
-                <?php endif; ?>
+        <div class="breadcrumb">
+            <a href="index.php">Home</a> &gt; <a href="index.php?brand=<?= _e($car['brand']) ?>"><?= _e($car['brand']) ?></a> &gt; <?= _e($car['model']) ?>
+        </div>
+
+        <h1 class="car-title"><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?></h1>
+
+        <div class="details-layout">
+            <div class="details-main">
+                <!-- Image Gallery -->
+                <div class="gallery">
+                    <div class="main-image">
+                        <img src="images/<?= _e(!empty($images) ? trim($images[0]) : 'placeholder.png') ?>" alt="Main car image" id="main-car-image">
+                    </div>
+                    <div class="thumbnails">
+                        <?php foreach ($images as $img): ?>
+                            <img src="images/<?= _e(trim($img)) ?>" alt="Car thumbnail" class="thumbnail-item" onclick="changeImage('images/<?= _e(trim($img)) ?>')">
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="description-section card">
+                    <h3>Description</h3>
+                    <p><?= nl2br(_e($car['description'])) ?></p>
+                </div>
+
+                <!-- Vehicle Details -->
+                <div class="specs-section card">
+                    <h3>Vehicle Details</h3>
+                    <ul class="specs-list">
+                        <li><span>Brand</span><strong><?= _e($car['brand']) ?></strong></li>
+                        <li><span>Model</span><strong><?= _e($car['model']) ?></strong></li>
+                        <li><span>Year</span><strong><?= _e($car['year']) ?></strong></li>
+                        <li><span>Mileage</span><strong><?= number_format($car['mileage']) ?> km</strong></li>
+                        <!-- Add more details as needed -->
+                    </ul>
+                </div>
             </div>
 
-            <!-- Car Information Section -->
-            <div class="car-info">
-                <h1><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?></h1>
-                <p class="price">$<?= number_format($car['price']) ?></p>
-                <h3>Key Details</h3>
-                <ul>
-                    <li><strong>Brand:</strong> <?= _e($car['brand']) ?></li>
-                    <li><strong>Model:</strong> <?= _e($car['model']) ?></li>
-                    <li><strong>Year:</strong> <?= _e($car['year']) ?></li>
-                    <li><strong>Mileage:</strong> <?= number_format($car['mileage']) ?> km</li>
-                </ul>
-                <h3>Description</h3>
-                <p><?= nl2br(_e($car['description'])) ?></p>
-            </div>
+            <aside class="details-sidebar">
+                <div class="price-card card">
+                    <div class="price-display">$<?= number_format($car['price']) ?></div>
+                    <p>Contact us for a detailed quote.</p>
+                </div>
 
-            <!-- Inquiry Form Section -->
-            <div class="car-inquiry">
-                <h3>Interested? Send a Message</h3>
-                <?php if (is_user_logged_in()): ?>
-                    <?php if ($success_message): ?>
-                        <div class="form-success"><?= _e($success_message) ?></div>
-                    <?php else: ?>
-                        <?php if (!empty($errors)): ?>
-                            <div class="form-errors">
-                                <?php foreach ($errors as $error): ?><p><?= _e($error) ?></p><?php endforeach; ?>
-                            </div>
+                <div class="inquiry-card card">
+                    <h3>Interested? Send a Message</h3>
+                    <?php if (is_user_logged_in()): ?>
+                        <?php if ($success_message): ?>
+                            <div class="form-success"><?= _e($success_message) ?></div>
+                        <?php else: ?>
+                            <?php if (!empty($errors)): ?>
+                                <div class="form-errors">
+                                    <?php foreach ($errors as $error): ?><p><?= _e($error) ?></p><?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                            <form action="car_details.php?id=<?= $car_id ?>" method="POST">
+                                <div class="form-group">
+                                    <label for="message">Your Message</label>
+                                    <textarea id="message" name="message" rows="5" required placeholder="I'm interested in this car..."></textarea>
+                                </div>
+                                <button type="submit" class="btn">Send Inquiry</button>
+                            </form>
                         <?php endif; ?>
-                        <form action="car_details.php?id=<?= $car_id ?>" method="POST">
-                            <div class="form-group">
-                                <label for="message">Your Message</label>
-                                <textarea id="message" name="message" rows="6" required></textarea>
-                            </div>
-                            <button type="submit" class="btn">Send Inquiry</button>
-                        </form>
+                    <?php else: ?>
+                        <p>Please <a href="login.php?redirect=car_details.php?id=<?= $car_id ?>">log in</a> or <a href="register.php">register</a> to send a message.</p>
                     <?php endif; ?>
-                <?php else: ?>
-                    <p>Please <a href="login.php?redirect=car_details.php?id=<?= $car_id ?>">log in</a> or <a href="register.php">register</a> to send a message.</p>
-                <?php endif; ?>
-            </div>
+                </div>
+            </aside>
         </div>
     </main>
+    <script>
+        function changeImage(newSrc) {
+            document.getElementById('main-car-image').src = newSrc;
+        }
+    </script>
 
     <footer>
         <div class="container">
