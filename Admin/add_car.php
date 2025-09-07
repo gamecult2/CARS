@@ -14,6 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $price = filter_input(INPUT_POST, 'price', FILTER_VALIDATE_FLOAT);
     $mileage = filter_input(INPUT_POST, 'mileage', FILTER_VALIDATE_INT);
     $description = trim($_POST['description'] ?? '');
+    $fuel_type = trim($_POST['fuel_type'] ?? '');
+    $transmission = trim($_POST['transmission'] ?? '');
+    $drivetrain = trim($_POST['drivetrain'] ?? '');
+    $body_type = trim($_POST['body_type'] ?? '');
+    $accessories = trim($_POST['accessories'] ?? '');
 
     if (empty($brand)) $errors[] = 'Brand is required.';
     if (empty($model)) $errors[] = 'Model is required.';
@@ -62,8 +67,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Insert into Database ---
     if (empty($errors)) {
         try {
-            $sql = "INSERT INTO cars (brand, model, year, price, mileage, description, images)
-                    VALUES (:brand, :model, :year, :price, :mileage, :description, :images)";
+            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, description, accessories, images)
+                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :description, :accessories, :images)";
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
@@ -72,8 +77,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':year' => $year,
                 ':price' => $price,
                 ':mileage' => $mileage,
+                ':fuel_type' => $fuel_type,
+                ':transmission' => $transmission,
+                ':drivetrain' => $drivetrain,
+                ':body_type' => $body_type,
                 ':description' => $description,
-                ':images' => implode(',', $image_filenames) // Store as comma-separated string
+                ':accessories' => $accessories,
+                ':images' => implode(',', $image_filenames)
             ]);
 
             $success_message = 'Car added successfully! <a href="manage_cars.php">View Cars</a>';
@@ -120,9 +130,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <label for="mileage">Mileage (km)</label>
         <input type="number" id="mileage" name="mileage" value="<?= _e($_POST['mileage'] ?? '') ?>" required>
     </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="fuel_type">Fuel Type</label>
+            <select id="fuel_type" name="fuel_type">
+                <option value="Petrol">Petrol</option>
+                <option value="Diesel">Diesel</option>
+                <option value="Electric">Electric</option>
+                <option value="Hybrid">Hybrid</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="transmission">Transmission</label>
+            <select id="transmission" name="transmission">
+                <option value="Automatic">Automatic</option>
+                <option value="Manual">Manual</option>
+                <option value="CVT">CVT</option>
+            </select>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="drivetrain">Drivetrain</label>
+            <select id="drivetrain" name="drivetrain">
+                <option value="FWD">FWD</option>
+                <option value="RWD">RWD</option>
+                <option value="AWD">AWD</option>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="body_type">Body Type</label>
+            <input type="text" id="body_type" name="body_type" value="<?= _e($_POST['body_type'] ?? '') ?>" placeholder="e.g., Sedan, SUV, Coupe">
+        </div>
+    </div>
+
     <div class="form-group">
         <label for="description">Description</label>
         <textarea id="description" name="description" required><?= _e($_POST['description'] ?? '') ?></textarea>
+    </div>
+    <div class="form-group">
+        <label for="accessories">Accessories</label>
+        <input type="text" id="accessories" name="accessories" value="<?= _e($_POST['accessories'] ?? '') ?>" placeholder="Comma-separated, e.g., ABS,Airbags">
     </div>
     <div class="form-group">
         <label for="images">Car Images</label>

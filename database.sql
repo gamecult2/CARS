@@ -51,7 +51,12 @@ CREATE TABLE `cars` (
   `year` int(4) NOT NULL,
   `price` decimal(10,2) NOT NULL,
   `mileage` int(11) NOT NULL,
+  `fuel_type` varchar(50) DEFAULT NULL,
+  `transmission` varchar(50) DEFAULT NULL,
+  `drivetrain` varchar(50) DEFAULT NULL,
+  `body_type` varchar(50) DEFAULT NULL,
   `description` text NOT NULL,
+  `accessories` text DEFAULT NULL, -- Comma-separated list
   `images` text DEFAULT NULL, -- Comma-separated list of image filenames
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
@@ -61,12 +66,12 @@ CREATE TABLE `cars` (
 -- Dumping data for table `cars`
 --
 
-INSERT INTO `cars` (`id`, `brand`, `model`, `year`, `price`, `mileage`, `description`, `images`) VALUES
-(1, 'Toyota', 'Camry', 2021, '25000.00', 15000, 'A reliable and fuel-efficient sedan.', 'camry1.jpg,camry2.jpg'),
-(2, 'Honda', 'Civic', 2022, '22000.00', 12000, 'Sporty and fun to drive.', 'civic1.jpg,civic2.jpg'),
-(3, 'Ford', 'Mustang', 2020, '35000.00', 20000, 'An iconic American muscle car.', 'mustang1.jpg,mustang2.jpg'),
-(4, 'Tesla', 'Model 3', 2023, '45000.00', 5000, 'A stylish and high-tech electric car.', 'model3_1.jpg,model3_2.jpg'),
-(5, 'BMW', 'X5', 2019, '55000.00', 30000, 'A luxurious and spacious SUV.', 'x5_1.jpg,x5_2.jpg');
+INSERT INTO `cars` (`id`, `brand`, `model`, `year`, `price`, `mileage`, `fuel_type`, `transmission`, `drivetrain`, `body_type`, `description`, `accessories`, `images`) VALUES
+(1, 'Toyota', 'Camry', 2021, '25000.00', 15000, 'Petrol', 'Automatic', 'FWD', 'Sedan', 'A reliable and fuel-efficient sedan.', 'Power Windows,ABS,Airbags,Bluetooth', 'camry1.jpg,camry2.jpg'),
+(2, 'Honda', 'Civic', 2022, '22000.00', 12000, 'Petrol', 'CVT', 'FWD', 'Sedan', 'Sporty and fun to drive.', 'Power Steering,ESP,Parking Radar', 'civic1.jpg,civic2.jpg'),
+(3, 'Ford', 'Mustang', 2020, '35000.00', 20000, 'Petrol', 'Manual', 'RWD', 'Coupe', 'An iconic American muscle car.', 'Driver Airbag,Tire Pressure Monitor,Central Locking', 'mustang1.jpg,mustang2.jpg'),
+(4, 'Tesla', 'Model 3', 2023, '45000.00', 5000, 'Electric', 'Automatic', 'AWD', 'Sedan', 'A stylish and high-tech electric car.', 'ESP,Bluetooth,Power Windows,ABS', 'model3_1.jpg,model3_2.jpg'),
+(5, 'BMW', 'X5', 2019, '55000.00', 30000, 'Diesel', 'Automatic', 'AWD', 'SUV', 'A luxurious and spacious SUV.', 'Parking Radar,Passenger Airbag,Spare Tire', 'x5_1.jpg,x5_2.jpg');
 
 -- --------------------------------------------------------
 

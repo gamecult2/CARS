@@ -103,16 +103,45 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
                         <li><span>Brand</span><strong><?= _e($car['brand']) ?></strong></li>
                         <li><span>Model</span><strong><?= _e($car['model']) ?></strong></li>
                         <li><span>Year</span><strong><?= _e($car['year']) ?></strong></li>
+                        <li><span>Body Type</span><strong><?= _e($car['body_type']) ?></strong></li>
                         <li><span>Mileage</span><strong><?= number_format($car['mileage']) ?> km</strong></li>
-                        <!-- Add more details as needed -->
+                        <li><span>Fuel Type</span><strong><?= _e($car['fuel_type']) ?></strong></li>
+                        <li><span>Transmission</span><strong><?= _e($car['transmission']) ?></strong></li>
+                        <li><span>Drivetrain</span><strong><?= _e($car['drivetrain']) ?></strong></li>
                     </ul>
                 </div>
+
+                <!-- Accessories Section -->
+                <?php if (!empty($car['accessories'])): ?>
+                <div class="accessories-section card">
+                    <h3>Accessories</h3>
+                    <ul class="accessories-list">
+                        <?php
+                            $accessories = explode(',', $car['accessories']);
+                            foreach ($accessories as $acc) {
+                                echo '<li>' . _e(trim($acc)) . '</li>';
+                            }
+                        ?>
+                    </ul>
+                </div>
+                <?php endif; ?>
             </div>
 
             <aside class="details-sidebar">
                 <div class="price-card card">
-                    <div class="price-display">$<?= number_format($car['price']) ?></div>
-                    <p>Contact us for a detailed quote.</p>
+                    <h4>Price Breakdown</h4>
+                    <ul class="price-breakdown">
+                        <li><span>Vehicle Price:</span><strong>$<?= number_format($car['price']) ?></strong></li>
+                        <li><span>Inspection Fee:</span><span>$65</span></li>
+                        <li><span>Export Handling Fee:</span><span>$400</span></li>
+                        <li><span>Service Fee:</span><span>$300</span></li>
+                        <li><span>Banking Transfer Fee:</span><span>$50</span></li>
+                    </ul>
+                    <div class="total-price">
+                        <span>EXW Total:</span>
+                        <strong>$<?= number_format($car['price'] + 65 + 400 + 300 + 50) ?></strong>
+                    </div>
+                    <small class="price-info">This is an estimated price. Does not include shipping (FOB, CFR, CIF). Please contact us for a full quote.</small>
                 </div>
 
                 <div class="inquiry-card card">
