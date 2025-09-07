@@ -42,17 +42,59 @@ function redirect(string $url): void {
  *
  * @return bool True if the user is logged in, false otherwise.
  */
+/**
+ * Gets the current session's user data and role.
+ *
+ * @return array|null An array with user data and role, or null if not logged in.
+ */
+function get_session_user(): ?array {
+    if (isset($_SESSION['user_id'])) {
+        return ['id' => $_SESSION['user_id'], 'role' => $_SESSION['user_role'] ?? 'user', 'name' => $_SESSION['user_name'] ?? ''];
+    }
+    if (isset($_SESSION['admin_id'])) {
+        return ['id' => $_SESSION['admin_id'], 'role' => 'admin', 'name' => $_SESSION['admin_username'] ?? ''];
+    }
+    return null;
+}
+
+/**
+ * Checks if a regular user is logged in.
+ *
+ * @return bool
+ */
 function is_user_logged_in(): bool {
-    return isset($_SESSION['user_id']);
+    $user = get_session_user();
+    return $user && $user['role'] === 'user';
 }
 
 /**
  * Checks if an admin is logged in.
  *
- * @return bool True if the admin is logged in, false otherwise.
+ * @return bool
  */
 function is_admin_logged_in(): bool {
-    return isset($_SESSION['admin_id']);
+    $user = get_session_user();
+    return $user && $user['role'] === 'admin';
+}
+
+/**
+ * Checks if a moderator is logged in.
+ *
+ * @return bool
+ */
+function is_moderator_logged_in(): bool {
+    $user = get_session_user();
+    return $user && $user['role'] === 'moderator';
+}
+
+/**
+ * Checks if an admin or a moderator is logged in.
+ *
+ * @return bool
+ */
+function is_admin_or_moderator(): bool {
+    $user = get_session_user();
+    return $user && ($user['role'] === 'admin' || $user['role'] === 'moderator');
 }
 
 /**

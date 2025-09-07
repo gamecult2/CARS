@@ -3,21 +3,11 @@
 require_once __DIR__ . '/../../functions.php';
 
 // --- Admin Authentication Check ---
-// All pages in the admin section, except for the login page itself, should require the user to be logged in.
-// We can get the script name to conditionally apply this check.
-$current_page = basename($_SERVER['PHP_SELF']);
-
-if (!is_admin_logged_in() && $current_page !== 'index.php') {
-    // If not logged in and not on the login page, redirect to login
+if (!is_admin_or_moderator()) {
     redirect('index.php');
 }
 
-// Check if the user is trying to access the login page while already logged in
-if (is_admin_logged_in() && $current_page === 'index.php' && !isset($_GET['action'])) {
-    // The main index.php handles both login and dashboard.
-    // This logic is mostly for other potential auth pages.
-    // We'll let index.php's internal logic handle the view.
-}
+$session_user = get_session_user();
 
 ?>
 <!DOCTYPE html>
@@ -34,12 +24,12 @@ if (is_admin_logged_in() && $current_page === 'index.php' && !isset($_GET['actio
         <header class="admin-header">
             <h1>Admin Panel</h1>
             <div class="header-right">
-                <span>Welcome, <strong><?= _e($_SESSION['admin_username'] ?? '') ?></strong></span>
+                <span>Welcome, <strong><?= _e($session_user['name']) ?></strong> (<?= _e($session_user['role']) ?>)</span>
                 <a href="index.php?action=logout" class="btn btn-secondary">Logout</a>
             </div>
         </header>
         <div class="admin-main">
-            <?php require_once 'navigation.php'; ?>
+            <?php require_once __DIR__ . '/navigation.php'; ?>
             <section class="admin-content">
                 <!-- Page-specific content starts here -->
 

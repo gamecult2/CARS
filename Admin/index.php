@@ -5,23 +5,39 @@ $errors = [];
 
 // --- Handle Login Form Submission ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username'])) {
-    $username = trim($_POST['username']);
+    $username = trim($_POST['username']); // Can be username for admin or email for moderator
     $password = $_POST['password'] ?? '';
 
     if (empty($username) || empty($password)) {
-        $errors[] = 'Username and password are required.';
+        $errors[] = 'Username/Email and password are required.';
     } else {
+        // First, check if it's an admin
         $stmt = $pdo->prepare("SELECT id, username, password FROM admin WHERE username = :username");
         $stmt->execute([':username' => $username]);
         $admin = $stmt->fetch();
 
         if ($admin && password_verify($password, $admin['password'])) {
+            // It's an admin
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
             redirect('index.php');
-        } else {
-            $errors[] = 'Invalid username or password.';
         }
+
+        // If not an admin, check if it's a moderator
+        $stmt = $pdo->prepare("SELECT id, name, email, password, role FROM users WHERE email = :email AND role = 'moderator'");
+        $stmt->execute([':email' => $username]);
+        $moderator = $stmt->fetch();
+
+        if ($moderator && password_verify($password, $moderator['password'])) {
+            // It's a moderator
+            $_SESSION['user_id'] = $moderator['id'];
+            $_SESSION['user_name'] = $moderator['name'];
+            $_SESSION['user_role'] = $moderator['role'];
+            redirect('index.php');
+        }
+
+        // If we reach here, credentials were not valid for either
+        $errors[] = 'Invalid credentials or insufficient permissions.';
     }
 }
 
@@ -56,8 +72,8 @@ if (!$is_logged_in) {
                 </div>
             <?php endif; ?>
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                        <label for="username">Username or Email</label>
+                        <input type="text" id="username" name="username" required placeholder="admin or moderator@example.com">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -75,6 +91,11 @@ if (!$is_logged_in) {
 
 // --- If we reach here, the admin is logged in. Show the dashboard. ---
 $page_title = 'Dashboard';
+
+// If the user is a moderator, the dashboard is not for them. Redirect to a relevant page.
+if(is_moderator_logged_in()) {
+    redirect('manage_cars.php');
+}
 
 // Fetch stats for the dashboard
 $total_cars = $pdo->query("SELECT COUNT(*) FROM cars")->fetchColumn();
