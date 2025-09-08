@@ -15,6 +15,8 @@
                     <li><a href="notifications.php">Notifications <?php if($notif_count > 0) echo "<span class='notif-badge'>{$notif_count}</span>"; ?></a></li>
                     <li><a href="logout.php">Logout</a></li>
                 <?php else: ?>
+                    <li><a href="blog.php">Blog</a></li>
+                    <li><a href="promotions.php">Promotions</a></li>
                     <li><a href="login.php">Login</a></li>
                     <li><a href="register.php">Register</a></li>
                 <?php endif; ?>

@@ -37,6 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seats = filter_input(INPUT_POST, 'seats', FILTER_VALIDATE_INT);
     $dimensions = trim($_POST['dimensions'] ?? '');
     $weight = filter_input(INPUT_POST, 'weight', FILTER_VALIDATE_INT);
+    $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
     if (empty($brand)) $errors[] = 'Brand is required.';
     // ... (Add all other validations as in add_car.php)
@@ -113,7 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         weight = :weight,
                         description = :description,
                         accessories = :accessories,
-                        images = :images
+                        images = :images,
+                        is_featured = :is_featured
                     WHERE id = :id";
             $stmt = $pdo->prepare($sql);
 
@@ -134,6 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':description' => $description,
                 ':accessories' => $accessories,
                 ':images' => implode(',', $image_filenames),
+                ':is_featured' => $is_featured,
                 ':id' => $car_id
             ]);
 
@@ -242,6 +245,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-group">
         <label for="accessories">Accessories</label>
         <input type="text" id="accessories" name="accessories" value="<?= _e($car['accessories'] ?? '') ?>" placeholder="Comma-separated, e.g., ABS,Airbags">
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_featured" value="1" <?= !empty($car['is_featured']) ? 'checked' : '' ?>>
+            Feature this car on the homepage
+        </label>
     </div>
 
     <div class="form-group">

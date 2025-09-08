@@ -24,7 +24,14 @@ $cars = get_cars($pdo, array_filter($filters));
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php require 'partials/header.php'; ?>
+    <?php
+    require 'partials/header.php';
+
+    // Fetch data for homepage sections
+    $featured_cars = $pdo->query("SELECT * FROM cars WHERE is_featured = 1 LIMIT 3")->fetchAll();
+    $recent_promos = array_slice(get_all_promotions($pdo, true), 0, 3);
+    $recent_posts = array_slice(get_all_blog_posts($pdo), 0, 3);
+    ?>
 
     <main class="container">
         <section class="search-filter">
@@ -47,31 +54,47 @@ $cars = get_cars($pdo, array_filter($filters));
             </form>
         </section>
 
+        <!-- Only show dashboard sections if not filtering -->
+        <?php if (empty(array_filter($filters))): ?>
+            <section class="featured-cars">
+                <h2>Featured Cars</h2>
+                <div class="car-grid">
+                    <?php foreach($featured_cars as $car): ?>
+                        <?php include 'partials/car_card.php'; ?>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+
+            <div class="home-columns">
+                <section class="recent-promotions">
+                    <h3>Latest Promotions</h3>
+                    <?php foreach($recent_promos as $promo): ?>
+                        <div class="promo-item-home">
+                            <a href="promotions.php"><strong><?= _e($promo['title']) ?></strong></a>
+                            <p><?= _e(substr($promo['description'], 0, 100)) ?>...</p>
+                        </div>
+                    <?php endforeach; ?>
+                </section>
+                <section class="recent-posts">
+                    <h3>From Our Blog</h3>
+                    <?php foreach($recent_posts as $post): ?>
+                        <div class="post-item-home">
+                            <a href="post.php?id=<?= $post['id'] ?>"><strong><?= _e($post['title']) ?></strong></a>
+                            <p><?= _e(substr(strip_tags($post['content']), 0, 100)) ?>...</p>
+                        </div>
+                    <?php endforeach; ?>
+                </section>
+            </div>
+        <?php endif; ?>
+
         <section class="car-listings">
-            <h2>Available Cars</h2>
+            <h2><?= empty(array_filter($filters)) ? "All Cars" : "Search Results" ?></h2>
             <div class="car-grid">
                 <?php if (empty($cars)): ?>
                     <p>No cars found matching your criteria. Try adjusting your search.</p>
                 <?php else: ?>
                     <?php foreach ($cars as $car): ?>
-                        <div class="car-card">
-                            <a href="car_details.php?id=<?= $car['id'] ?>">
-                                <?php
-                                    // Display the first image, or a placeholder if none exist
-                                    $images = !empty($car['images']) ? explode(',', $car['images']) : [];
-                                    $first_image = !empty($images) ? 'images/' . trim($images[0]) : 'assets/placeholder.png';
-                                ?>
-                                <img src="<?= _e($first_image) ?>" alt="<?= _e($car['brand'] . ' ' . $car['model']) ?>">
-                                <div class="car-card-content">
-                                    <h3><?= _e($car['brand'] . ' ' . $car['model']) ?></h3>
-                                    <p class="price">$<?= number_format($car['price']) ?></p>
-                                    <ul>
-                                        <li><strong>Year:</strong> <?= _e($car['year']) ?></li>
-                                        <li><strong>Mileage:</strong> <?= number_format($car['mileage']) ?> km</li>
-                                    </ul>
-                                </div>
-                            </a>
-                        </div>
+                        <?php include 'partials/car_card.php'; ?>
                     <?php endforeach; ?>
                 <?php endif; ?>
             </div>

@@ -62,6 +62,7 @@ CREATE TABLE `cars` (
   `description` text NOT NULL,
   `accessories` text DEFAULT NULL, -- Comma-separated list
   `images` text DEFAULT NULL, -- Comma-separated list of image filenames
+  `is_featured` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -70,12 +71,12 @@ CREATE TABLE `cars` (
 -- Dumping data for table `cars`
 --
 
-INSERT INTO `cars` (`id`, `brand`, `model`, `year`, `price`, `mileage`, `fuel_type`, `transmission`, `drivetrain`, `body_type`, `exterior_color`, `seats`, `dimensions`, `weight`, `description`, `accessories`, `images`) VALUES
-(1, 'Toyota', 'Camry', 2021, '25000.00', 15000, 'Petrol', 'Automatic', 'FWD', 'Sedan', 'White', 5, '4885x1840x1445', 1530, 'A reliable and fuel-efficient sedan.', 'Power Windows,ABS,Airbags,Bluetooth', 'camry1.jpg,camry2.jpg'),
-(2, 'Honda', 'Civic', 2022, '22000.00', 12000, 'Petrol', 'CVT', 'FWD', 'Sedan', 'Black', 5, '4674x1802x1415', 1353, 'Sporty and fun to drive.', 'Power Steering,ESP,Parking Radar', 'civic1.jpg,civic2.jpg'),
-(3, 'Ford', 'Mustang', 2020, '35000.00', 20000, 'Petrol', 'Manual', 'RWD', 'Coupe', 'Red', 4, '4794x1916x1373', 1705, 'An iconic American muscle car.', 'Driver Airbag,Tire Pressure Monitor,Central Locking', 'mustang1.jpg,mustang2.jpg'),
-(4, 'Tesla', 'Model 3', 2023, '45000.00', 5000, 'Electric', 'Automatic', 'AWD', 'Sedan', 'Blue', 5, '4694x1850x1443', 1847, 'A stylish and high-tech electric car.', 'ESP,Bluetooth,Power Windows,ABS', 'model3_1.jpg,model3_2.jpg'),
-(5, 'BMW', 'X5', 2019, '55000.00', 30000, 'Diesel', 'Automatic', 'AWD', 'SUV', 'Grey', 5, '4922x2004x1745', 2185, 'A luxurious and spacious SUV.', 'Parking Radar,Passenger Airbag,Spare Tire', 'x5_1.jpg,x5_2.jpg');
+INSERT INTO `cars` (`id`, `brand`, `model`, `year`, `price`, `mileage`, `fuel_type`, `transmission`, `drivetrain`, `body_type`, `exterior_color`, `seats`, `dimensions`, `weight`, `description`, `accessories`, `images`, `is_featured`) VALUES
+(1, 'Toyota', 'Camry', 2021, '25000.00', 15000, 'Petrol', 'Automatic', 'FWD', 'Sedan', 'White', 5, '4885x1840x1445', 1530, 'A reliable and fuel-efficient sedan.', 'Power Windows,ABS,Airbags,Bluetooth', 'camry1.jpg,camry2.jpg', 1),
+(2, 'Honda', 'Civic', 2022, '22000.00', 12000, 'Petrol', 'CVT', 'FWD', 'Sedan', 'Black', 5, '4674x1802x1415', 1353, 'Sporty and fun to drive.', 'Power Steering,ESP,Parking Radar', 'civic1.jpg,civic2.jpg', 0),
+(3, 'Ford', 'Mustang', 2020, '35000.00', 20000, 'Petrol', 'Manual', 'RWD', 'Coupe', 'Red', 4, '4794x1916x1373', 1705, 'An iconic American muscle car.', 'Driver Airbag,Tire Pressure Monitor,Central Locking', 'mustang1.jpg,mustang2.jpg', 1),
+(4, 'Tesla', 'Model 3', 2023, '45000.00', 5000, 'Electric', 'Automatic', 'AWD', 'Sedan', 'Blue', 5, '4694x1850x1443', 1847, 'A stylish and high-tech electric car.', 'ESP,Bluetooth,Power Windows,ABS', 'model3_1.jpg,model3_2.jpg', 0),
+(5, 'BMW', 'X5', 2019, '55000.00', 30000, 'Diesel', 'Automatic', 'AWD', 'SUV', 'Grey', 5, '4922x2004x1745', 2185, 'A luxurious and spacious SUV.', 'Parking Radar,Passenger Airbag,Spare Tire', 'x5_1.jpg,x5_2.jpg', 1);
 
 -- --------------------------------------------------------
 

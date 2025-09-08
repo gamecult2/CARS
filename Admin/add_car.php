@@ -23,6 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seats = filter_input(INPUT_POST, 'seats', FILTER_VALIDATE_INT);
     $dimensions = trim($_POST['dimensions'] ?? '');
     $weight = filter_input(INPUT_POST, 'weight', FILTER_VALIDATE_INT);
+    $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
     if (empty($brand)) $errors[] = 'Brand is required.';
     if (empty($model)) $errors[] = 'Model is required.';
@@ -71,8 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Insert into Database ---
     if (empty($errors)) {
         try {
-            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, exterior_color, seats, dimensions, weight, description, accessories, images)
-                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :exterior_color, :seats, :dimensions, :weight, :description, :accessories, :images)";
+            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, exterior_color, seats, dimensions, weight, description, accessories, images, is_featured)
+                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :exterior_color, :seats, :dimensions, :weight, :description, :accessories, :images, :is_featured)";
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
@@ -91,7 +92,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':weight' => $weight,
                 ':description' => $description,
                 ':accessories' => $accessories,
-                ':images' => implode(',', $image_filenames)
+                ':images' => implode(',', $image_filenames),
+                ':is_featured' => $is_featured
             ]);
 
             $success_message = 'Car added successfully! <a href="manage_cars.php">View Cars</a>';
@@ -203,6 +205,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-group">
         <label for="accessories">Accessories</label>
         <input type="text" id="accessories" name="accessories" value="<?= _e($_POST['accessories'] ?? '') ?>" placeholder="Comma-separated, e.g., ABS,Airbags">
+    </div>
+    <div class="form-group">
+        <label>
+            <input type="checkbox" name="is_featured" value="1" <?= isset($_POST['is_featured']) ? 'checked' : '' ?>>
+            Feature this car on the homepage
+        </label>
     </div>
     <div class="form-group">
         <label for="images">Car Images</label>

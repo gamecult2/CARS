@@ -1,0 +1,53 @@
+/* --- Promotions Page Styles --- */
+
+.promotions-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.promo-card {
+    background: #fff;
+    border: 1px solid #eee;
+    border-top: 5px solid #007bff;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.07);
+    display: flex;
+    flex-direction: column;
+}
+
+.promo-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+}
+
+.discount-badge {
+    background-color: #dc3545;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 15px;
+    align-self: flex-start;
+}
+
+.promo-description {
+    flex-grow: 1;
+    color: #555;
+    line-height: 1.6;
+}
+
+.promo-meta {
+    font-size: 0.9rem;
+    color: #888;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.promo-card .btn {
+    margin-top: 20px;
+    align-self: flex-start;
+}

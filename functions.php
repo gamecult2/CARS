@@ -466,8 +466,13 @@ function delete_entity(PDO $pdo, string $table, int $id): bool {
     return $stmt->execute([':id' => $id]);
 }
 
-function get_all_promotions(PDO $pdo): array {
-    return $pdo->query("SELECT p.*, c.brand, c.model FROM promotions p LEFT JOIN cars c ON p.car_id = c.id ORDER BY p.end_date DESC")->fetchAll();
+function get_all_promotions(PDO $pdo, bool $only_active = false): array {
+    $sql = "SELECT p.*, c.brand, c.model FROM promotions p LEFT JOIN cars c ON p.car_id = c.id";
+    if ($only_active) {
+        $sql .= " WHERE p.end_date >= NOW()";
+    }
+    $sql .= " ORDER BY p.end_date DESC";
+    return $pdo->query($sql)->fetchAll();
 }
 
 function get_promotion(PDO $pdo, int $id): ?array {

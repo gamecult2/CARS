@@ -36,6 +36,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
 
 // Explode images string into an array
 $images = !empty($car['images']) ? explode(',', $car['images']) : [];
+
+// Prepare for social sharing
+$current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+$share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $car['model'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -162,6 +166,15 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
                     <?php else: ?>
                         <p>Please <a href="login.php?redirect=car_details.php?id=<?= $car_id ?>">log in</a> or <a href="register.php">register</a> to place an order.</p>
                     <?php endif; ?>
+                </div>
+
+                <div class="social-share card">
+                    <h4>Share This Car</h4>
+                    <div class="share-buttons">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode($current_url) ?>" target="_blank" class="share-btn facebook">Facebook</a>
+                        <a href="https://twitter.com/intent/tweet?url=<?= urlencode($current_url) ?>&text=<?= urlencode($share_text) ?>" target="_blank" class="share-btn twitter">X (Twitter)</a>
+                        <a href="https://api.whatsapp.com/send?text=<?= urlencode($share_text . ' ' . $current_url) ?>" target="_blank" class="share-btn whatsapp">WhatsApp</a>
+                    </div>
                 </div>
             </aside>
         </div>
