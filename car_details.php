@@ -1,6 +1,8 @@
 <?php
 require_once 'functions.php';
 
+$session_user = get_session_user();
+
 // --- Get Car ID and Fetch Car Data ---
 $car_id = (int)($_GET['id'] ?? 0);
 if ($car_id <= 0) {
