@@ -1,4 +1,11 @@
 <div class="car-card">
+    <?php if (is_user_logged_in()):
+        $in_wishlist = is_car_in_wishlist($pdo, $session_user['id'], $car['id']);
+    ?>
+        <button class="wishlist-btn-card <?= $in_wishlist ? 'active' : '' ?>" data-car-id="<?= $car['id'] ?>" onclick="toggleWishlist(this, true)">
+            <span class="heart-icon"><?= $in_wishlist ? '♥' : '♡' ?></span>
+        </button>
+    <?php endif; ?>
     <a href="car_details.php?id=<?= $car['id'] ?>">
         <?php
             // Display the first image, or a placeholder if none exist

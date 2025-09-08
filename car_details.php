@@ -76,9 +76,19 @@ $share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $ca
 
         <div class="title-bar">
             <h1 class="car-title"><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?></h1>
-            <?php if (is_admin_logged_in()): ?>
-                <a href="/Admin/edit_car.php?id=<?= $car['id'] ?>" class="btn admin-edit-btn" target="_blank">Edit Car</a>
-            <?php endif; ?>
+            <div class="title-actions">
+                <?php if (is_user_logged_in()):
+                    $in_wishlist = is_car_in_wishlist($pdo, $session_user['id'], $car['id']);
+                ?>
+                    <button class="wishlist-btn <?= $in_wishlist ? 'active' : '' ?>" data-car-id="<?= $car['id'] ?>" onclick="toggleWishlist(this)">
+                        <span class="heart-icon"><?= $in_wishlist ? '♥' : '♡' ?></span>
+                        <span class="wishlist-text"><?= $in_wishlist ? 'Saved' : 'Save' ?></span>
+                    </button>
+                <?php endif; ?>
+                <?php if (is_admin_logged_in()): ?>
+                    <a href="/Admin/edit_car.php?id=<?= $car['id'] ?>" class="btn admin-edit-btn" target="_blank">Edit Car</a>
+                <?php endif; ?>
+            </div>
         </div>
 
         <div class="details-layout">
@@ -247,6 +257,36 @@ $share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $ca
         document.addEventListener('DOMContentLoaded', () => {
             updatePrice('EXW', document.querySelector('.price-tab .tab'));
         });
+
+        async function toggleWishlist(button, isCard = false) {
+            const carId = button.dataset.carId;
+            const formData = new FormData();
+            formData.append('car_id', carId);
+
+            try {
+                const response = await fetch('api_wishlist.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    const heartIcon = button.querySelector('.heart-icon');
+                    const wishlistText = button.querySelector('.wishlist-text');
+
+                    button.classList.toggle('active', result.in_wishlist);
+                    heartIcon.innerText = result.in_wishlist ? '♥' : '♡';
+                    if (wishlistText) {
+                        wishlistText.innerText = result.in_wishlist ? 'Saved' : 'Save';
+                    }
+
+                    // Update header count
+                    document.querySelector('.wishlist-badge').innerText = result.count;
+                }
+            } catch (error) {
+                console.error('Error toggling wishlist:', error);
+            }
+        }
     </script>
 
     <footer>

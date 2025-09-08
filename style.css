@@ -158,6 +158,33 @@ main {
     box-shadow: 0 8px 25px rgba(0,0,0,0.15);
 }
 
+.car-card {
+    position: relative;
+}
+
+.wishlist-btn-card {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.wishlist-btn-card .heart-icon {
+    font-size: 1.5rem;
+    color: #ccc;
+}
+.wishlist-btn-card.active .heart-icon {
+    color: #dc3545;
+}
+
 .car-card a {
     display: block;
     color: inherit;

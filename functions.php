@@ -494,4 +494,24 @@ function get_promotion(PDO $pdo, int $id): ?array {
     return $promo ?: null;
 }
 
+// --- Wishlist Functions ---
+
+function is_car_in_wishlist(PDO $pdo, int $user_id, int $car_id): bool {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM wishlist WHERE user_id = :user_id AND car_id = :car_id");
+    $stmt->execute([':user_id' => $user_id, ':car_id' => $car_id]);
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+function get_wishlist_count(PDO $pdo, int $user_id): int {
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM wishlist WHERE user_id = :user_id");
+    $stmt->execute([':user_id' => $user_id]);
+    return (int)$stmt->fetchColumn();
+}
+
+function get_wishlist_for_user(PDO $pdo, int $user_id): array {
+    $stmt = $pdo->prepare("SELECT c.* FROM cars c JOIN wishlist w ON c.id = w.car_id WHERE w.user_id = :user_id ORDER BY w.created_at DESC");
+    $stmt->execute([':user_id' => $user_id]);
+    return $stmt->fetchAll();
+}
+
 ?>

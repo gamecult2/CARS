@@ -9,9 +9,10 @@
                     $is_admin_or_mod = ($session_user['role'] === 'admin' || $session_user['role'] === 'moderator');
                     $user_id_for_notif = $is_admin_or_mod ? 1 : $session_user['id']; // Admin/mod notifications are sent to user ID 1
                     $notif_count = get_unread_notification_count($pdo, $user_id_for_notif);
+                    $wishlist_count = get_wishlist_count($pdo, $session_user['id']);
                 ?>
                     <li><a href="profile.php">My Profile</a></li>
-                    <li><a href="messages.php">My Messages</a></li>
+                    <li><a href="wishlist.php">Wishlist <span class="notif-badge wishlist-badge"><?= $wishlist_count ?></span></a></li>
                     <li><a href="notifications.php">Notifications <?php if($notif_count > 0) echo "<span class='notif-badge'>{$notif_count}</span>"; ?></a></li>
                     <li><a href="logout.php">Logout</a></li>
                 <?php else: ?>
@@ -28,4 +29,7 @@
         </nav>
     </div>
 </header>
-<style>.notif-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; vertical-align: top; }</style>
+<style>
+.notif-badge { background-color: #dc3545; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; vertical-align: top; }
+.wishlist-badge { background-color: #007bff; }
+</style>
