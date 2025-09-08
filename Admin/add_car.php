@@ -242,6 +242,10 @@ echo <<<HTML
 .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 .alert-danger ul { margin: 0; padding-left: 20px; }
 </style>
+HTML;
+
+// The validation script is now outside the heredoc block
+?>
 <script>
 function updateCondition() {
     const yearInput = document.getElementById('year');
@@ -276,20 +280,20 @@ addCarForm.addEventListener('submit', function(event) {
         const value = field.element.value.trim();
 
         if (field.required && value === '') {
-            errors.push(`${fieldName.replace('_', ' ')} is required.`);
+            errors.push(fieldName.replace('_', ' ') + ' is required.');
             continue;
         }
 
         if (field.isNumeric && value !== '') {
             const numValue = parseFloat(value);
             if (isNaN(numValue)) {
-                errors.push(`${fieldName.replace('_', ' ')} must be a number.`);
+                errors.push(fieldName.replace('_', ' ') + ' must be a number.');
             }
             if (field.min !== undefined && numValue < field.min) {
-                errors.push(`${fieldName.replace('_', ' ')} must be at least ${field.min}.`);
+                errors.push(fieldName.replace('_', ' ') + ' must be at least ' + field.min + '.');
             }
             if (field.max !== undefined && numValue > field.max) {
-                errors.push(`${fieldName.replace('_', ' ')} must be no more than ${field.max}.`);
+                errors.push(fieldName.replace('_', ' ') + ' must be no more than ' + field.max + '.');
             }
         }
     }
@@ -300,7 +304,6 @@ addCarForm.addEventListener('submit', function(event) {
     }
 });
 </script>
-HTML;
-
+<?php
 require_once 'partials/footer.php';
 ?>
