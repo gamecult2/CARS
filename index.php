@@ -12,6 +12,7 @@ $filters = [
 
 // The get_cars function is defined in functions.php
 // It sanitizes the input and returns the cars
+$filters['condition'] = $_GET['condition'] ?? null;
 $cars = get_cars($pdo, array_filter($filters));
 
 ?>
@@ -86,6 +87,12 @@ $cars = get_cars($pdo, array_filter($filters));
                 </section>
             </div>
         <?php endif; ?>
+
+        <div class="category-filters">
+            <a href="index.php" class="<?= empty($filters['condition']) ? 'active' : '' ?>">All Cars</a>
+            <a href="index.php?condition=new" class="<?= ($filters['condition'] ?? '') === 'new' ? 'active' : '' ?>">New Cars</a>
+            <a href="index.php?condition=used" class="<?= ($filters['condition'] ?? '') === 'used' ? 'active' : '' ?>">Used Cars</a>
+        </div>
 
         <section class="car-listings">
             <h2><?= empty(array_filter($filters)) ? "All Cars" : "Search Results" ?></h2>

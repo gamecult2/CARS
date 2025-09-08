@@ -105,8 +105,9 @@ function is_admin_or_moderator(): bool {
  * @return array An array of car records.
  */
 function get_cars(PDO $pdo, array $filters = []): array {
-    $sql = "SELECT * FROM cars WHERE 1=1";
-    $params = [];
+    $current_year = date('Y');
+    $sql = "SELECT * FROM cars WHERE year >= :min_year";
+    $params = [':min_year' => $current_year - 3];
 
     if (!empty($filters['brand'])) {
         $sql .= " AND brand LIKE :brand";
@@ -123,6 +124,17 @@ function get_cars(PDO $pdo, array $filters = []): array {
     if (!empty($filters['max_price'])) {
         $sql .= " AND price <= :max_price";
         $params[':max_price'] = $filters['max_price'];
+    }
+
+    // Handle the new condition filter
+    if (!empty($filters['condition'])) {
+        if ($filters['condition'] === 'new') {
+            $sql .= " AND year = :current_year";
+            $params[':current_year'] = $current_year;
+        } elseif ($filters['condition'] === 'used') {
+            $sql .= " AND year < :current_year";
+            $params[':current_year'] = $current_year;
+        }
     }
 
     $sql .= " ORDER BY created_at DESC";

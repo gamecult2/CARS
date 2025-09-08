@@ -170,7 +170,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- ... other form fields pre-filled with $car data ... -->
     <div class="form-group">
         <label for="year">Year</label>
-        <input type="number" id="year" name="year" value="<?= _e($car['year']) ?>" required>
+        <input type="number" id="year" name="year" value="<?= _e($car['year']) ?>" required oninput="updateCondition()">
+    </div>
+    <div class="form-group">
+        <label>Condition</label>
+        <input type="text" id="condition-display" value="" readonly style="background: #eee;">
     </div>
     <div class="form-group">
         <label for="price">Price ($)</label>
@@ -289,5 +293,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 .alert { padding: 15px; margin-bottom: 20px; border-radius: 5px; border: 1px solid transparent; }
 .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 </style>
+<script>
+function updateCondition() {
+    const yearInput = document.getElementById('year');
+    const conditionDisplay = document.getElementById('condition-display');
+    const currentYear = new Date().getFullYear();
+    if (yearInput.value == currentYear) {
+        conditionDisplay.value = 'New';
+    } else {
+        conditionDisplay.value = 'Used';
+    }
+}
+// Run on page load to set initial state
+document.addEventListener('DOMContentLoaded', updateCondition);
+</script>
 
 <?php require_once 'partials/footer.php'; ?>

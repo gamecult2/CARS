@@ -130,7 +130,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
     <div class="form-group">
         <label for="year">Year</label>
-        <input type="number" id="year" name="year" value="<?= _e($_POST['year'] ?? '') ?>" required>
+        <input type="number" id="year" name="year" value="<?= _e($_POST['year'] ?? '') ?>" required oninput="updateCondition()">
+    </div>
+    <div class="form-group">
+        <label>Condition</label>
+        <input type="text" id="condition-display" value="New" readonly style="background: #eee;">
     </div>
     <div class="form-group">
         <label for="price">Price ($)</label>
@@ -229,6 +233,20 @@ echo <<<HTML
 .alert-danger { background-color: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 .alert-danger ul { margin: 0; padding-left: 20px; }
 </style>
+<script>
+function updateCondition() {
+    const yearInput = document.getElementById('year');
+    const conditionDisplay = document.getElementById('condition-display');
+    const currentYear = new Date().getFullYear();
+    if (yearInput.value == currentYear) {
+        conditionDisplay.value = 'New';
+    } else {
+        conditionDisplay.value = 'Used';
+    }
+}
+// Run on page load in case of re-submission with values
+document.addEventListener('DOMContentLoaded', updateCondition);
+</script>
 HTML;
 
 require_once 'partials/footer.php';
