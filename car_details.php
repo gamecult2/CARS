@@ -68,6 +68,7 @@ $average_rating_data = get_average_rating_for_car($pdo, $car_id);
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="car_details.css"> <!-- Specific styles for this page -->
     <link rel="stylesheet" href="reviews.css"> <!-- Styles for reviews -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/css/lightbox.min.css">
 </head>
 <body>
     <header>
@@ -115,11 +116,19 @@ $average_rating_data = get_average_rating_for_car($pdo, $car_id);
                 <!-- Image Gallery -->
                 <div class="gallery">
                     <div class="main-image">
-                        <img src="images/<?= _e(!empty($images) ? trim($images[0]) : 'placeholder.png') ?>" alt="Main car image" id="main-car-image">
+                        <?php if (!empty($images)): ?>
+                            <a href="images/<?= _e(trim($images[0])) ?>" data-lightbox="car-gallery" data-title="<?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?>">
+                                <img src="images/<?= _e(trim($images[0])) ?>" alt="Main car image" id="main-car-image">
+                            </a>
+                        <?php else: ?>
+                            <img src="images/placeholder.png" alt="Main car image" id="main-car-image">
+                        <?php endif; ?>
                     </div>
                     <div class="thumbnails">
-                        <?php foreach ($images as $img): ?>
-                            <img src="images/<?= _e(trim($img)) ?>" alt="Car thumbnail" class="thumbnail-item" onclick="changeImage('images/<?= _e(trim($img)) ?>')">
+                        <?php foreach ($images as $key => $img): ?>
+                            <a href="images/<?= _e(trim($img)) ?>" data-lightbox="car-gallery" data-title="<?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) . ' (' . ($key + 1) . ' of ' . count($images) . ')' ?>">
+                                <img src="images/<?= _e(trim($img)) ?>" alt="Car thumbnail" class="thumbnail-item">
+                            </a>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -257,10 +266,6 @@ $average_rating_data = get_average_rating_for_car($pdo, $car_id);
         </div>
     </main>
     <script>
-        function changeImage(newSrc) {
-            document.getElementById('main-car-image').src = newSrc;
-        }
-
         const vehiclePrice = <?= $car['price'] ?>;
         const fees = {
             inspection: 65,
@@ -355,7 +360,7 @@ $average_rating_data = get_average_rating_for_car($pdo, $car_id);
             }
         }
     </script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.4/js/lightbox-plus-jquery.min.js"></script>
     <footer>
         <div class="container">
             <p>&copy; <?= date('Y') ?> Car Dealership. All Rights Reserved.</p>
