@@ -26,6 +26,7 @@ $cars = get_cars($pdo, array_filter($filters));
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Dealership</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="compare.css">
 </head>
 <body>
     <?php
@@ -157,8 +158,104 @@ $cars = get_cars($pdo, array_filter($filters));
 
     <?php require 'partials/footer.php'; ?>
 
+    <div class="comparison-tray" id="comparison-tray">
+        <div class="comparison-items" id="comparison-items">
+            <!-- Items will be added here by JavaScript -->
+        </div>
+        <div class="comparison-actions">
+            <a href="#" id="compare-button" class="btn-compare disabled">Compare</a>
+            <button class="btn-clear" id="clear-compare">Clear</button>
+        </div>
+    </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Compare Tray Logic
+        const MAX_COMPARE = 4;
+        let compareItems = JSON.parse(sessionStorage.getItem('compareItems')) || [];
+        const tray = document.getElementById('comparison-tray');
+        const trayItemsContainer = document.getElementById('comparison-items');
+        const compareButton = document.getElementById('compare-button');
+        const clearButton = document.getElementById('clear-compare');
+
+        function updateTray() {
+            trayItemsContainer.innerHTML = '';
+            if (compareItems.length > 0) {
+                tray.classList.add('visible');
+            } else {
+                tray.classList.remove('visible');
+            }
+
+            compareItems.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'comparison-item';
+                itemEl.innerHTML = `<span>${escapeHTML(item.name)}</span><span class="remove-compare" data-id="${item.id}">&times;</span>`;
+                trayItemsContainer.appendChild(itemEl);
+            });
+
+            // Update compare button state
+            if (compareItems.length > 1) {
+                compareButton.classList.remove('disabled');
+                const ids = compareItems.map(item => item.id).join(',');
+                compareButton.href = `compare.php?ids=${ids}`;
+            } else {
+                compareButton.classList.add('disabled');
+                compareButton.href = '#';
+            }
+
+            // Sync checkboxes
+            document.querySelectorAll('.compare-checkbox').forEach(checkbox => {
+                const carId = checkbox.dataset.carId;
+                checkbox.checked = compareItems.some(item => item.id == carId);
+            });
+        }
+
+        function handleCompareChange(event) {
+            const checkbox = event.target;
+            if (!checkbox.classList.contains('compare-checkbox')) return;
+
+            const carId = checkbox.dataset.carId;
+            const carName = checkbox.dataset.carName;
+
+            if (checkbox.checked) {
+                if (compareItems.length >= MAX_COMPARE) {
+                    alert(`You can only compare up to ${MAX_COMPARE} cars.`);
+                    checkbox.checked = false;
+                    return;
+                }
+                if (!compareItems.some(item => item.id == carId)) {
+                    compareItems.push({ id: carId, name: carName });
+                }
+            } else {
+                compareItems = compareItems.filter(item => item.id != carId);
+            }
+
+            sessionStorage.setItem('compareItems', JSON.stringify(compareItems));
+            updateTray();
+        }
+
+        clearButton.addEventListener('click', () => {
+            compareItems = [];
+            sessionStorage.removeItem('compareItems');
+            updateTray();
+        });
+
+        document.body.addEventListener('click', (event) => {
+            if (event.target.classList.contains('remove-compare')) {
+                const carId = event.target.dataset.id;
+                compareItems = compareItems.filter(item => item.id != carId);
+                sessionStorage.setItem('compareItems', JSON.stringify(compareItems));
+                updateTray();
+            }
+        });
+
+        // Initial tray setup
+        updateTray();
+
+        // Add master event listener for compare checkboxes
+        document.body.addEventListener('change', handleCompareChange);
+
+        // Search Form Logic
         const searchForm = document.getElementById('search-form');
         const carGrid = document.getElementById('car-grid');
         const listingsTitle = document.getElementById('car-listings-title');
@@ -239,6 +336,12 @@ $cars = get_cars($pdo, array_filter($filters));
                         </ul>
                     </div>
                 </a>
+                <div class="car-card-actions">
+                    <label>
+                        <input type="checkbox" class="compare-checkbox" data-car-id="${car.id}" data-car-name="${escapeHTML(car.brand)} ${escapeHTML(car.model)}">
+                        Compare
+                    </label>
+                </div>
             `;
             return carCard;
         }

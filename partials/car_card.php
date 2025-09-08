@@ -26,4 +26,10 @@
             </ul>
         </div>
     </a>
+    <div class="car-card-actions">
+        <label>
+            <input type="checkbox" class="compare-checkbox" data-car-id="<?= $car['id'] ?>" data-car-name="<?= _e($car['brand'] . ' ' . $car['model']) ?>">
+            Compare
+        </label>
+    </div>
 </div>

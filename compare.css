@@ -1,0 +1,73 @@
+/* Styling for the Comparison Tray */
+.comparison-tray {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #333;
+    color: #fff;
+    z-index: 1000;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-in-out;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.comparison-tray.visible {
+    transform: translateY(0);
+}
+
+.comparison-items {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.comparison-item {
+    background-color: #444;
+    padding: 5px 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+}
+
+.comparison-item .remove-compare {
+    cursor: pointer;
+    font-weight: bold;
+    color: #ffcccc;
+}
+
+.comparison-actions .btn-compare {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.comparison-actions .btn-compare.disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+.comparison-actions .btn-clear {
+    color: #ffdddd;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-left: 15px;
+    text-decoration: underline;
+}
+
+/* Style for the checkbox on the car card */
+.car-card-actions {
+    padding: 10px;
+    text-align: right;
+    border-top: 1px solid #f0f0f0;
+}
