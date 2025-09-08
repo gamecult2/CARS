@@ -5,6 +5,9 @@ require_once 'partials/header.php';
 $errors = [];
 $success_message = '';
 
+// Get distinct values for dropdowns
+$car_attributes = get_distinct_car_attributes($pdo);
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Sanitize and Validate Inputs ---
@@ -148,19 +151,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div style="display: flex; gap: 20px;">
         <div class="form-group" style="flex: 1;">
             <label for="fuel_type">Fuel Type</label>
-            <select id="fuel_type" name="fuel_type">
-                <option value="Petrol">Petrol</option>
-                <option value="Diesel">Diesel</option>
-                <option value="Electric">Electric</option>
-                <option value="Hybrid">Hybrid</option>
+            <select id="fuel_type" name="fuel_type" required>
+                <option value="">Select Fuel Type</option>
+                <?php foreach ($car_attributes['fuel_type'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($_POST['fuel_type'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group" style="flex: 1;">
             <label for="transmission">Transmission</label>
-            <select id="transmission" name="transmission">
-                <option value="Automatic">Automatic</option>
-                <option value="Manual">Manual</option>
-                <option value="CVT">CVT</option>
+            <select id="transmission" name="transmission" required>
+                <option value="">Select Transmission</option>
+                <?php foreach ($car_attributes['transmission'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($_POST['transmission'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
     </div>
@@ -176,7 +180,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="form-group" style="flex: 1;">
             <label for="body_type">Body Type</label>
-            <input type="text" id="body_type" name="body_type" value="<?= _e($_POST['body_type'] ?? '') ?>" placeholder="e.g., Sedan, SUV, Coupe">
+            <select id="body_type" name="body_type" required>
+                <option value="">Select Body Type</option>
+                <?php foreach ($car_attributes['body_type'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($_POST['body_type'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
 
@@ -246,6 +255,50 @@ function updateCondition() {
 }
 // Run on page load in case of re-submission with values
 document.addEventListener('DOMContentLoaded', updateCondition);
+
+const addCarForm = document.querySelector('form.admin-form');
+addCarForm.addEventListener('submit', function(event) {
+    const errors = [];
+    const fields = {
+        brand: { required: true, element: document.getElementById('brand') },
+        model: { required: true, element: document.getElementById('model') },
+        year: { required: true, element: document.getElementById('year'), isNumeric: true, min: 1900, max: new Date().getFullYear() + 1 },
+        price: { required: true, element: document.getElementById('price'), isNumeric: true, min: 1 },
+        mileage: { required: true, element: document.getElementById('mileage'), isNumeric: true, min: 0 },
+        description: { required: true, element: document.getElementById('description') },
+        fuel_type: { required: true, element: document.getElementById('fuel_type') },
+        transmission: { required: true, element: document.getElementById('transmission') },
+        body_type: { required: true, element: document.getElementById('body_type') },
+    };
+
+    for (const fieldName in fields) {
+        const field = fields[fieldName];
+        const value = field.element.value.trim();
+
+        if (field.required && value === '') {
+            errors.push(`${fieldName.replace('_', ' ')} is required.`);
+            continue;
+        }
+
+        if (field.isNumeric && value !== '') {
+            const numValue = parseFloat(value);
+            if (isNaN(numValue)) {
+                errors.push(`${fieldName.replace('_', ' ')} must be a number.`);
+            }
+            if (field.min !== undefined && numValue < field.min) {
+                errors.push(`${fieldName.replace('_', ' ')} must be at least ${field.min}.`);
+            }
+            if (field.max !== undefined && numValue > field.max) {
+                errors.push(`${fieldName.replace('_', ' ')} must be no more than ${field.max}.`);
+            }
+        }
+    }
+
+    if (errors.length > 0) {
+        event.preventDefault();
+        alert('Please fix the following errors:\n\n- ' + errors.join('\n- '));
+    }
+});
 </script>
 HTML;
 

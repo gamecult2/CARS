@@ -10,6 +10,9 @@ if (!$car_id) {
     redirect('manage_cars.php');
 }
 
+// Get distinct values for dropdowns
+$car_attributes = get_distinct_car_attributes($pdo);
+
 // Fetch the existing car data
 $stmt = $pdo->prepare("SELECT * FROM cars WHERE id = :id");
 $stmt->execute([':id' => $car_id]);
@@ -188,19 +191,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div style="display: flex; gap: 20px;">
         <div class="form-group" style="flex: 1;">
             <label for="fuel_type">Fuel Type</label>
-            <select id="fuel_type" name="fuel_type">
-                <option value="Petrol" <?= ($car['fuel_type'] ?? '') == 'Petrol' ? 'selected' : '' ?>>Petrol</option>
-                <option value="Diesel" <?= ($car['fuel_type'] ?? '') == 'Diesel' ? 'selected' : '' ?>>Diesel</option>
-                <option value="Electric" <?= ($car['fuel_type'] ?? '') == 'Electric' ? 'selected' : '' ?>>Electric</option>
-                <option value="Hybrid" <?= ($car['fuel_type'] ?? '') == 'Hybrid' ? 'selected' : '' ?>>Hybrid</option>
+            <select id="fuel_type" name="fuel_type" required>
+                <option value="">Select Fuel Type</option>
+                <?php foreach ($car_attributes['fuel_type'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($car['fuel_type'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
         <div class="form-group" style="flex: 1;">
             <label for="transmission">Transmission</label>
-            <select id="transmission" name="transmission">
-                <option value="Automatic" <?= ($car['transmission'] ?? '') == 'Automatic' ? 'selected' : '' ?>>Automatic</option>
-                <option value="Manual" <?= ($car['transmission'] ?? '') == 'Manual' ? 'selected' : '' ?>>Manual</option>
-                <option value="CVT" <?= ($car['transmission'] ?? '') == 'CVT' ? 'selected' : '' ?>>CVT</option>
+            <select id="transmission" name="transmission" required>
+                <option value="">Select Transmission</option>
+                <?php foreach ($car_attributes['transmission'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($car['transmission'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
             </select>
         </div>
     </div>
@@ -216,7 +220,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="form-group" style="flex: 1;">
             <label for="body_type">Body Type</label>
-            <input type="text" id="body_type" name="body_type" value="<?= _e($car['body_type'] ?? '') ?>" placeholder="e.g., Sedan, SUV, Coupe">
+            <select id="body_type" name="body_type" required>
+                <option value="">Select Body Type</option>
+                <?php foreach ($car_attributes['body_type'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($car['body_type'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
     </div>
 
@@ -306,6 +315,50 @@ function updateCondition() {
 }
 // Run on page load to set initial state
 document.addEventListener('DOMContentLoaded', updateCondition);
+
+const editCarForm = document.querySelector('form.admin-form');
+editCarForm.addEventListener('submit', function(event) {
+    const errors = [];
+    const fields = {
+        brand: { required: true, element: document.getElementById('brand') },
+        model: { required: true, element: document.getElementById('model') },
+        year: { required: true, element: document.getElementById('year'), isNumeric: true, min: 1900, max: new Date().getFullYear() + 1 },
+        price: { required: true, element: document.getElementById('price'), isNumeric: true, min: 1 },
+        mileage: { required: true, element: document.getElementById('mileage'), isNumeric: true, min: 0 },
+        description: { required: true, element: document.getElementById('description') },
+        fuel_type: { required: true, element: document.getElementById('fuel_type') },
+        transmission: { required: true, element: document.getElementById('transmission') },
+        body_type: { required: true, element: document.getElementById('body_type') },
+    };
+
+    for (const fieldName in fields) {
+        const field = fields[fieldName];
+        const value = field.element.value.trim();
+
+        if (field.required && value === '') {
+            errors.push(`${fieldName.replace('_', ' ')} is required.`);
+            continue;
+        }
+
+        if (field.isNumeric && value !== '') {
+            const numValue = parseFloat(value);
+            if (isNaN(numValue)) {
+                errors.push(`${fieldName.replace('_', ' ')} must be a number.`);
+            }
+            if (field.min !== undefined && numValue < field.min) {
+                errors.push(`${fieldName.replace('_', ' ')} must be at least ${field.min}.`);
+            }
+            if (field.max !== undefined && numValue > field.max) {
+                errors.push(`${fieldName.replace('_', ' ')} must be no more than ${field.max}.`);
+            }
+        }
+    }
+
+    if (errors.length > 0) {
+        event.preventDefault();
+        alert('Please fix the following errors:\n\n- ' + errors.join('\n- '));
+    }
+});
 </script>
 
 <?php require_once 'partials/footer.php'; ?>
