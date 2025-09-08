@@ -516,7 +516,19 @@ function get_wishlist_count(PDO $pdo, int $user_id): int {
 }
 
 function get_wishlist_for_user(PDO $pdo, int $user_id): array {
-    $stmt = $pdo->prepare("SELECT c.* FROM cars c JOIN wishlist w ON c.id = w.car_id WHERE w.user_id = :user_id ORDER BY w.created_at DESC");
+    $sql = "
+        SELECT c.*, COALESCE(r.avg_rating, 0) as avg_rating, COALESCE(r.review_count, 0) as review_count
+        FROM cars c
+        JOIN wishlist w ON c.id = w.car_id
+        LEFT JOIN (
+            SELECT car_id, AVG(rating) as avg_rating, COUNT(*) as review_count
+            FROM reviews
+            GROUP BY car_id
+        ) r ON c.id = r.car_id
+        WHERE w.user_id = :user_id
+        ORDER BY w.created_at DESC
+    ";
+    $stmt = $pdo->prepare($sql);
     $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetchAll();
 }
