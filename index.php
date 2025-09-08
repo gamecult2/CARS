@@ -29,7 +29,18 @@ $cars = get_cars($pdo, array_filter($filters));
     require 'partials/header.php';
 
     // Fetch data for homepage sections
-    $featured_cars = $pdo->query("SELECT * FROM cars WHERE is_featured = 1 LIMIT 3")->fetchAll();
+    $featured_cars_query = "
+        SELECT c.*, COALESCE(r.avg_rating, 0) as avg_rating, COALESCE(r.review_count, 0) as review_count
+        FROM cars c
+        LEFT JOIN (
+            SELECT car_id, AVG(rating) as avg_rating, COUNT(*) as review_count
+            FROM reviews
+            GROUP BY car_id
+        ) r ON c.id = r.car_id
+        WHERE c.is_featured = 1
+        LIMIT 3
+    ";
+    $featured_cars = $pdo->query($featured_cars_query)->fetchAll();
     $recent_promos = array_slice(get_all_promotions($pdo, true), 0, 3);
     $recent_posts = array_slice(get_all_blog_posts($pdo), 0, 3);
     ?>

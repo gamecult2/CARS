@@ -15,6 +15,10 @@
         <img src="<?= _e($first_image) ?>" alt="<?= _e($car['brand'] . ' ' . $car['model']) ?>">
         <div class="car-card-content">
             <h3><?= _e($car['brand'] . ' ' . $car['model']) ?></h3>
+            <div class="card-rating">
+                <div class="star-rating" style="--rating: <?= $car['avg_rating'] ?>;"></div>
+                <span>(<?= $car['review_count'] ?>)</span>
+            </div>
             <p class="price">$<?= number_format($car['price']) ?></p>
             <ul>
                 <li><strong>Year:</strong> <?= _e($car['year']) ?></li>

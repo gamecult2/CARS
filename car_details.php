@@ -40,6 +40,22 @@ $images = !empty($car['images']) ? explode(',', $car['images']) : [];
 // Prepare for social sharing
 $current_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 $share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $car['model'];
+
+// --- Handle Review Submission ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
+    if (is_user_logged_in()) {
+        $rating = filter_input(INPUT_POST, 'rating', FILTER_VALIDATE_INT);
+        $comment = trim($_POST['comment']);
+        if ($rating >= 1 && $rating <= 5) {
+            submit_review($pdo, $car_id, $session_user['id'], $rating, $comment);
+            redirect("car_details.php?id=$car_id&review=success");
+        }
+    }
+}
+
+// Fetch reviews for this car
+$reviews = get_reviews_for_car($pdo, $car_id);
+$average_rating_data = get_average_rating_for_car($pdo, $car_id);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -49,6 +65,7 @@ $share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $ca
     <title><?= _e($car['year'] . ' ' . $car['brand'] . ' ' . $car['model']) ?> - Car Dealership</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="car_details.css"> <!-- Specific styles for this page -->
+    <link rel="stylesheet" href="reviews.css"> <!-- Styles for reviews -->
 </head>
 <body>
     <header>
@@ -144,6 +161,54 @@ $share_text = "Check out this " . $car['year'] . " " . $car['brand'] . " " . $ca
                     </ul>
                 </div>
                 <?php endif; ?>
+
+                <!-- Reviews Section -->
+                <div class="reviews-section card">
+                    <h3>Customer Reviews & Ratings</h3>
+                    <div class="rating-summary">
+                        <div class="average-rating"><?= number_format($average_rating_data['average'], 1) ?></div>
+                        <div class="star-rating" style="--rating: <?= $average_rating_data['average'] ?>;"></div>
+                        <div class="review-count">(<?= $average_rating_data['count'] ?> reviews)</div>
+                    </div>
+
+                    <div class="review-list">
+                        <?php if (empty($reviews)): ?>
+                            <p>No reviews yet. Be the first to write one!</p>
+                        <?php else: ?>
+                            <?php foreach ($reviews as $review): ?>
+                                <div class="review-item">
+                                    <div class="review-author"><strong><?= _e($review['user_name']) ?></strong></div>
+                                    <div class="star-rating" style="--rating: <?= $review['rating'] ?>;"></div>
+                                    <p class="review-comment"><?= nl2br(_e($review['comment'])) ?></p>
+                                    <div class="review-date"><?= date("F j, Y", strtotime($review['created_at'])) ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if (is_user_logged_in()): ?>
+                        <div class="review-form">
+                            <h4>Write a Review</h4>
+                            <form action="car_details.php?id=<?= $car_id ?>" method="POST">
+                                <div class="form-group">
+                                    <label>Your Rating</label>
+                                    <div class="star-input">
+                                        <input type="radio" id="star5" name="rating" value="5" /><label for="star5" title="5 stars"></label>
+                                        <input type="radio" id="star4" name="rating" value="4" /><label for="star4" title="4 stars"></label>
+                                        <input type="radio" id="star3" name="rating" value="3" /><label for="star3" title="3 stars"></label>
+                                        <input type="radio" id="star2" name="rating" value="2" /><label for="star2" title="2 stars"></label>
+                                        <input type="radio" id="star1" name="rating" value="1" /><label for="star1" title="1 star"></label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="comment">Your Comment</label>
+                                    <textarea name="comment" id="comment" rows="4"></textarea>
+                                </div>
+                                <button type="submit" name="submit_review" class="btn">Submit Review</button>
+                            </form>
+                        </div>
+                    <?php endif; ?>
+                </div>
             </div>
 
             <aside class="details-sidebar">

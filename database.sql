@@ -377,4 +377,35 @@ ALTER TABLE `wishlist` ADD PRIMARY KEY (`user_id`,`car_id`), ADD KEY `car_id` (`
 ALTER TABLE `wishlist`
   ADD CONSTRAINT `wishlist_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `wishlist_ibfk_2` FOREIGN KEY (`car_id`) REFERENCES `cars` (`id`) ON DELETE CASCADE;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `reviews`
+--
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL,
+  `car_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `rating` tinyint(1) NOT NULL CHECK (`rating` >= 1 and `rating` <= 5),
+  `comment` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Indexes for new tables
+--
+ALTER TABLE `reviews` ADD PRIMARY KEY (`id`), ADD KEY `car_id` (`car_id`), ADD KEY `user_id` (`user_id`);
+
+--
+-- AUTO_INCREMENT for new tables
+--
+ALTER TABLE `reviews` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for new tables
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`car_id`) REFERENCES `cars` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;

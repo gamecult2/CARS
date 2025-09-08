@@ -106,7 +106,14 @@ function is_admin_or_moderator(): bool {
  */
 function get_cars(PDO $pdo, array $filters = []): array {
     $current_year = date('Y');
-    $sql = "SELECT * FROM cars WHERE year >= :min_year";
+    $sql = "SELECT c.*, COALESCE(r.avg_rating, 0) as avg_rating, COALESCE(r.review_count, 0) as review_count
+            FROM cars c
+            LEFT JOIN (
+                SELECT car_id, AVG(rating) as avg_rating, COUNT(*) as review_count
+                FROM reviews
+                GROUP BY car_id
+            ) r ON c.id = r.car_id
+            WHERE c.year >= :min_year";
     $params = [':min_year' => $current_year - 3];
 
     if (!empty($filters['brand'])) {
@@ -512,6 +519,36 @@ function get_wishlist_for_user(PDO $pdo, int $user_id): array {
     $stmt = $pdo->prepare("SELECT c.* FROM cars c JOIN wishlist w ON c.id = w.car_id WHERE w.user_id = :user_id ORDER BY w.created_at DESC");
     $stmt->execute([':user_id' => $user_id]);
     return $stmt->fetchAll();
+}
+
+// --- Review & Rating Functions ---
+
+function submit_review(PDO $pdo, int $car_id, int $user_id, int $rating, string $comment): bool {
+    // For simplicity, we allow one review per user per car.
+    // A real app might check if a user has already reviewed.
+    $stmt = $pdo->prepare("INSERT INTO reviews (car_id, user_id, rating, comment) VALUES (:car_id, :user_id, :rating, :comment)");
+    return $stmt->execute([
+        ':car_id' => $car_id,
+        ':user_id' => $user_id,
+        ':rating' => $rating,
+        ':comment' => $comment,
+    ]);
+}
+
+function get_reviews_for_car(PDO $pdo, int $car_id): array {
+    $stmt = $pdo->prepare("SELECT r.*, u.name as user_name FROM reviews r JOIN users u ON r.user_id = u.id WHERE r.car_id = :car_id ORDER BY r.created_at DESC");
+    $stmt->execute([':car_id' => $car_id]);
+    return $stmt->fetchAll();
+}
+
+function get_average_rating_for_car(PDO $pdo, int $car_id): array {
+    $stmt = $pdo->prepare("SELECT COUNT(*) as review_count, AVG(rating) as avg_rating FROM reviews WHERE car_id = :car_id");
+    $stmt->execute([':car_id' => $car_id]);
+    $result = $stmt->fetch();
+    return [
+        'count' => (int)($result['review_count'] ?? 0),
+        'average' => (float)($result['avg_rating'] ?? 0),
+    ];
 }
 
 ?>
