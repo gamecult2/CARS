@@ -19,5 +19,14 @@ $current_page = basename($_SERVER['SCRIPT_NAME']);
         <li class="<?= ($current_page === 'messages.php') ? 'active' : '' ?>">
             <a href="messages.php">View Inquiries</a>
         </li>
+        <li class="<?= ($current_page === 'manage_orders.php' || $current_page === 'view_order.php') ? 'active' : '' ?>">
+            <a href="manage_orders.php">Manage Orders</a>
+        </li>
+        <li class="<?= ($current_page === 'manage_blog.php' || $current_page === 'edit_blog.php') ? 'active' : '' ?>">
+            <a href="manage_blog.php">Manage Blog</a>
+        </li>
+        <li class="<?= ($current_page === 'manage_promotions.php' || $current_page === 'edit_promotion.php') ? 'active' : '' ?>">
+            <a href="manage_promotions.php">Manage Promotions</a>
+        </li>
     </ul>
 </nav>

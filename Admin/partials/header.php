@@ -24,6 +24,11 @@ $session_user = get_session_user();
         <header class="admin-header">
             <h1>Admin Panel</h1>
             <div class="header-right">
+                <?php
+                    // Admin/mod notifications are sent to user ID 1
+                    $notif_count = get_unread_notification_count($pdo, 1);
+                ?>
+                <a href="notifications.php" class="notif-link">Notifications <?php if($notif_count > 0) echo "<span class='notif-badge'>{$notif_count}</span>"; ?></a>
                 <span>Welcome, <strong><?= _e($session_user['name']) ?></strong> (<?= _e($session_user['role']) ?>)</span>
                 <a href="index.php?action=logout" class="btn btn-secondary">Logout</a>
             </div>

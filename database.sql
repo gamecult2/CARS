@@ -116,6 +116,35 @@ CREATE TABLE `chat_messages` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `blog_posts`
+--
+CREATE TABLE `blog_posts` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `content` text NOT NULL,
+  `author_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `promotions`
+--
+CREATE TABLE `promotions` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `discount_percent` decimal(5,2) DEFAULT NULL,
+  `car_id` int(11) DEFAULT NULL,
+  `start_date` datetime NOT NULL,
+  `end_date` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -304,4 +333,24 @@ ALTER TABLE `order_files`
 
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Indexes for new tables
+--
+ALTER TABLE `blog_posts` ADD PRIMARY KEY (`id`), ADD KEY `author_id` (`author_id`);
+ALTER TABLE `promotions` ADD PRIMARY KEY (`id`), ADD KEY `car_id` (`car_id`);
+
+--
+-- AUTO_INCREMENT for new tables
+--
+ALTER TABLE `blog_posts` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `promotions` MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Constraints for new tables
+--
+ALTER TABLE `blog_posts`
+  ADD CONSTRAINT `blog_posts_ibfk_1` FOREIGN KEY (`author_id`) REFERENCES `admin` (`id`) ON DELETE CASCADE;
+ALTER TABLE `promotions`
+  ADD CONSTRAINT `promotions_ibfk_1` FOREIGN KEY (`car_id`) REFERENCES `cars` (`id`) ON DELETE SET NULL;
 COMMIT;

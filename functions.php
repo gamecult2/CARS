@@ -447,4 +447,34 @@ function mark_notifications_as_read(PDO $pdo, int $user_id): bool {
     $stmt = $pdo->prepare("UPDATE notifications SET is_read = 1 WHERE user_id = :user_id AND is_read = 0");
     return $stmt->execute([':user_id' => $user_id]);
 }
+
+// --- Blog & Promotion Functions ---
+
+function get_all_blog_posts(PDO $pdo): array {
+    return $pdo->query("SELECT * FROM blog_posts ORDER BY created_at DESC")->fetchAll();
+}
+
+function get_blog_post(PDO $pdo, int $id): ?array {
+    $stmt = $pdo->prepare("SELECT * FROM blog_posts WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $post = $stmt->fetch();
+    return $post ?: null;
+}
+
+function delete_entity(PDO $pdo, string $table, int $id): bool {
+    $stmt = $pdo->prepare("DELETE FROM $table WHERE id = :id");
+    return $stmt->execute([':id' => $id]);
+}
+
+function get_all_promotions(PDO $pdo): array {
+    return $pdo->query("SELECT p.*, c.brand, c.model FROM promotions p LEFT JOIN cars c ON p.car_id = c.id ORDER BY p.end_date DESC")->fetchAll();
+}
+
+function get_promotion(PDO $pdo, int $id): ?array {
+    $stmt = $pdo->prepare("SELECT * FROM promotions WHERE id = :id");
+    $stmt->execute([':id' => $id]);
+    $promo = $stmt->fetch();
+    return $promo ?: null;
+}
+
 ?>

@@ -134,6 +134,9 @@ body {
     gap: 20px;
 }
 
+.notif-link { color: #fff; text-decoration: none; }
+.notif-badge { background-color: #e53e3e; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; vertical-align: top; margin-left: 4px; }
+
 .admin-main {
     display: flex;
     flex: 1;
