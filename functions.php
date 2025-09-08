@@ -132,6 +132,18 @@ function get_cars(PDO $pdo, array $filters = []): array {
         $sql .= " AND price <= :max_price";
         $params[':max_price'] = $filters['max_price'];
     }
+    if (!empty($filters['body_type'])) {
+        $sql .= " AND body_type = :body_type";
+        $params[':body_type'] = $filters['body_type'];
+    }
+    if (!empty($filters['transmission'])) {
+        $sql .= " AND transmission = :transmission";
+        $params[':transmission'] = $filters['transmission'];
+    }
+    if (!empty($filters['fuel_type'])) {
+        $sql .= " AND fuel_type = :fuel_type";
+        $params[':fuel_type'] = $filters['fuel_type'];
+    }
 
     // Handle the new condition filter
     if (!empty($filters['condition'])) {
@@ -563,4 +575,21 @@ function get_average_rating_for_car(PDO $pdo, int $car_id): array {
     ];
 }
 
+/**
+ * Gets distinct values for car attributes to populate search filters.
+ *
+ * @param PDO $pdo The PDO database connection object.
+ * @return array An array containing arrays of distinct values for each attribute.
+ */
+function get_distinct_car_attributes(PDO $pdo): array {
+    $attributes = ['body_type', 'transmission', 'fuel_type'];
+    $distinct_values = [];
+
+    foreach ($attributes as $attribute) {
+        $stmt = $pdo->query("SELECT DISTINCT $attribute FROM cars WHERE $attribute IS NOT NULL AND $attribute != '' ORDER BY $attribute ASC");
+        $distinct_values[$attribute] = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+    }
+
+    return $distinct_values;
+}
 ?>
