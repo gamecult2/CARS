@@ -161,7 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 <?php endif; ?>
 
-<form class="admin-form" action="edit_car.php?id=<?= $car_id ?>" method="POST" enctype="multipart/form-data">
+<form class="admin-form car-form" action="edit_car.php?id=<?= $car_id ?>" method="POST" enctype="multipart/form-data">
     <div class="form-group">
         <label for="brand">Brand</label>
         <input type="text" id="brand" name="brand" value="<?= _e($car['brand']) ?>" required>
@@ -315,50 +315,9 @@ function updateCondition() {
 }
 // Run on page load to set initial state
 document.addEventListener('DOMContentLoaded', updateCondition);
-
-const editCarForm = document.querySelector('form.admin-form');
-editCarForm.addEventListener('submit', function(event) {
-    const errors = [];
-    const fields = {
-        brand: { required: true, element: document.getElementById('brand') },
-        model: { required: true, element: document.getElementById('model') },
-        year: { required: true, element: document.getElementById('year'), isNumeric: true, min: 1900, max: new Date().getFullYear() + 1 },
-        price: { required: true, element: document.getElementById('price'), isNumeric: true, min: 1 },
-        mileage: { required: true, element: document.getElementById('mileage'), isNumeric: true, min: 0 },
-        description: { required: true, element: document.getElementById('description') },
-        fuel_type: { required: true, element: document.getElementById('fuel_type') },
-        transmission: { required: true, element: document.getElementById('transmission') },
-        body_type: { required: true, element: document.getElementById('body_type') },
-    };
-
-    for (const fieldName in fields) {
-        const field = fields[fieldName];
-        const value = field.element.value.trim();
-
-        if (field.required && value === '') {
-            errors.push(fieldName.replace('_', ' ') + ' is required.');
-            continue;
-        }
-
-        if (field.isNumeric && value !== '') {
-            const numValue = parseFloat(value);
-            if (isNaN(numValue)) {
-                errors.push(fieldName.replace('_', ' ') + ' must be a number.');
-            }
-            if (field.min !== undefined && numValue < field.min) {
-                errors.push(fieldName.replace('_', ' ') + ' must be at least ' + field.min + '.');
-            }
-            if (field.max !== undefined && numValue > field.max) {
-                errors.push(fieldName.replace('_', ' ') + ' must be no more than ' + field.max + '.');
-            }
-        }
-    }
-
-    if (errors.length > 0) {
-        event.preventDefault();
-        alert('Please fix the following errors:\n\n- ' + errors.join('\n- '));
-    }
-});
 </script>
 
-<?php require_once 'partials/footer.php'; ?>
+<?php
+require_once 'partials/footer.php';
+?>
+<script src="js/form_validation.js" defer></script>
