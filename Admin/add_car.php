@@ -26,6 +26,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $seats = filter_input(INPUT_POST, 'seats', FILTER_VALIDATE_INT);
     $dimensions = trim($_POST['dimensions'] ?? '');
     $weight = filter_input(INPUT_POST, 'weight', FILTER_VALIDATE_INT);
+    $steering = trim($_POST['steering'] ?? '');
+    $color_hex = trim($_POST['color_hex'] ?? '');
     $is_featured = isset($_POST['is_featured']) ? 1 : 0;
 
     if (empty($brand)) $errors[] = 'Brand is required.';
@@ -75,8 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // --- Insert into Database ---
     if (empty($errors)) {
         try {
-            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, exterior_color, seats, dimensions, weight, description, accessories, images, is_featured)
-                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :exterior_color, :seats, :dimensions, :weight, :description, :accessories, :images, :is_featured)";
+            $sql = "INSERT INTO cars (brand, model, year, price, mileage, fuel_type, transmission, drivetrain, body_type, exterior_color, seats, dimensions, weight, description, accessories, images, is_featured, steering, color_hex)
+                    VALUES (:brand, :model, :year, :price, :mileage, :fuel_type, :transmission, :drivetrain, :body_type, :exterior_color, :seats, :dimensions, :weight, :description, :accessories, :images, :is_featured, :steering, :color_hex)";
             $stmt = $pdo->prepare($sql);
 
             $stmt->execute([
@@ -96,7 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':description' => $description,
                 ':accessories' => $accessories,
                 ':images' => implode(',', $image_filenames),
-                ':is_featured' => $is_featured
+                ':is_featured' => $is_featured,
+                ':steering' => $steering,
+                ':color_hex' => $color_hex
             ]);
 
             $success_message = 'Car added successfully! <a href="manage_cars.php">View Cars</a>';
@@ -146,6 +150,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="form-group">
         <label for="mileage">Mileage (km)</label>
         <input type="number" id="mileage" name="mileage" value="<?= _e($_POST['mileage'] ?? '') ?>" required>
+    </div>
+
+    <div style="display: flex; gap: 20px;">
+        <div class="form-group" style="flex: 1;">
+            <label for="steering">Steering</label>
+            <select id="steering" name="steering" required>
+                <option value="">Select Steering</option>
+                <?php foreach ($car_attributes['steering'] as $value): ?>
+                    <option value="<?= _e($value) ?>" <?= (($_POST['steering'] ?? '') == $value) ? 'selected' : '' ?>><?= _e($value) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="form-group" style="flex: 1;">
+            <label for="color_hex">Color Code</label>
+            <input type="color" id="color_hex" name="color_hex" value="<?= _e($_POST['color_hex'] ?? '#ffffff') ?>">
+            <small>Select the main color for swatch display.</small>
+        </div>
     </div>
 
     <div style="display: flex; gap: 20px;">

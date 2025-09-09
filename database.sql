@@ -56,6 +56,8 @@ CREATE TABLE `cars` (
   `drivetrain` varchar(50) DEFAULT NULL,
   `body_type` varchar(50) DEFAULT NULL,
   `exterior_color` varchar(50) DEFAULT NULL,
+  `color_hex` varchar(7) DEFAULT NULL,
+  `steering` varchar(10) DEFAULT NULL,
   `seats` int(2) DEFAULT NULL,
   `dimensions` varchar(100) DEFAULT NULL,
   `weight` int(11) DEFAULT NULL,

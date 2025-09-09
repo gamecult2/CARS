@@ -144,6 +144,21 @@ function get_cars(PDO $pdo, array $filters = []): array {
         $sql .= " AND fuel_type = :fuel_type";
         $params[':fuel_type'] = $filters['fuel_type'];
     }
+    if (!empty($filters['steering'])) {
+        $sql .= " AND steering = :steering";
+        $params[':steering'] = $filters['steering'];
+    }
+    if (!empty($filters['color_hex'])) {
+        $sql .= " AND color_hex = :color_hex";
+        $params[':color_hex'] = $filters['color_hex'];
+    }
+    if (!empty($filters['accessories']) && is_array($filters['accessories'])) {
+        foreach ($filters['accessories'] as $index => $accessory) {
+            $key = ":acc" . $index;
+            $sql .= " AND accessories LIKE " . $key;
+            $params[$key] = '%' . $accessory . '%';
+        }
+    }
 
     // Handle the new condition filter
     if (!empty($filters['condition'])) {
@@ -582,7 +597,7 @@ function get_average_rating_for_car(PDO $pdo, int $car_id): array {
  * @return array An array containing arrays of distinct values for each attribute.
  */
 function get_distinct_car_attributes(PDO $pdo): array {
-    $attributes = ['body_type', 'transmission', 'fuel_type'];
+    $attributes = ['body_type', 'transmission', 'fuel_type', 'steering'];
     $distinct_values = [];
 
     foreach ($attributes as $attribute) {
@@ -591,5 +606,39 @@ function get_distinct_car_attributes(PDO $pdo): array {
     }
 
     return $distinct_values;
+}
+
+/**
+ * Gets distinct colors and all unique accessories for advanced search filters.
+ *
+ * @param PDO $pdo The PDO database connection object.
+ * @return array An array containing 'colors' and 'accessories'.
+ */
+function get_advanced_filter_options(PDO $pdo): array {
+    $options = [];
+
+    // Get distinct colors
+    $stmt_colors = $pdo->query("SELECT DISTINCT color_hex, exterior_color FROM cars WHERE color_hex IS NOT NULL AND color_hex != ''");
+    $options['colors'] = $stmt_colors->fetchAll(PDO::FETCH_ASSOC);
+
+    // Get all accessories, then find unique values
+    $stmt_acc = $pdo->query("SELECT accessories FROM cars WHERE accessories IS NOT NULL AND accessories != ''");
+    $all_accessories_raw = $stmt_acc->fetchAll(PDO::FETCH_COLUMN, 0);
+
+    $all_accessories = [];
+    foreach ($all_accessories_raw as $accessory_list) {
+        $accessories = explode(',', $accessory_list);
+        foreach ($accessories as $accessory) {
+            $trimmed_acc = trim($accessory);
+            if (!empty($trimmed_acc)) {
+                $all_accessories[$trimmed_acc] = true; // Use a map to handle uniqueness
+            }
+        }
+    }
+    $unique_accessories = array_keys($all_accessories);
+    sort($unique_accessories);
+    $options['accessories'] = $unique_accessories;
+
+    return $options;
 }
 ?>
