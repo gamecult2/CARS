@@ -334,6 +334,71 @@ function get_brands_with_count(PDO $pdo): array {
     return $stmt->fetchAll();
 }
 
+/**
+ * Gets all brands, their logos, and the count of cars for each brand.
+ *
+ * @param PDO $pdo The PDO database connection object.
+ * @return array An array of brand records, grouped by the first letter of the brand name.
+ */
+function get_all_brands_with_counts(PDO $pdo): array {
+    $sql = "
+        SELECT
+            b.name,
+            b.logo_url,
+            COUNT(c.id) as car_count
+        FROM
+            brands b
+        LEFT JOIN
+            cars c ON b.name = c.brand
+        GROUP BY
+            b.id, b.name, b.logo_url
+        ORDER BY
+            b.name ASC
+    ";
+    $stmt = $pdo->query($sql);
+    $all_brands = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Group by first letter
+    $grouped_brands = [];
+    foreach ($all_brands as $brand) {
+        $first_letter = strtoupper(substr($brand['name'], 0, 1));
+        if (is_numeric($first_letter)) {
+            $first_letter = '#';
+        }
+        $grouped_brands[$first_letter][] = $brand;
+    }
+    ksort($grouped_brands);
+    return $grouped_brands;
+}
+
+/**
+ * Gets all featured brands and their car counts.
+ *
+ * @param PDO $pdo The PDO database connection object.
+ * @return array An array of featured brand records.
+ */
+function get_featured_brands(PDO $pdo): array {
+    $sql = "
+        SELECT
+            b.name,
+            b.logo_url,
+            COUNT(c.id) as car_count
+        FROM
+            brands b
+        LEFT JOIN
+            cars c ON b.name = c.brand
+        WHERE
+            b.is_featured = 1
+        GROUP BY
+            b.id, b.name, b.logo_url
+        ORDER BY
+            b.name ASC
+    ";
+    $stmt = $pdo->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
 // --- Order Management Functions ---
 
 /**

@@ -1,0 +1,131 @@
+/* All Brands Page Styling */
+
+.brands-page {
+    width: 100%;
+}
+
+.featured-brands, .all-brands-list {
+    margin-bottom: 40px;
+}
+
+.brands-page h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.extra-links {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+}
+
+.extra-link-item {
+    background-color: #f8f9fa;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+    border: 1px solid #dee2e6;
+    transition: all 0.2s ease-in-out;
+}
+
+.extra-link-item:hover {
+    background-color: #e9ecef;
+    border-color: #ced4da;
+}
+
+.alphabet-index {
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    border: 1px solid #eee;
+}
+
+.alphabet-index ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.alphabet-index a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+    font-size: 1.1em;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.alphabet-index a:hover {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.brand-group {
+    margin-bottom: 30px;
+}
+
+.letter-heading {
+    font-size: 2em;
+    color: #007bff;
+    padding-bottom: 10px;
+    border-bottom: 3px solid #007bff;
+    margin-bottom: 20px;
+}
+
+.brand-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+}
+
+.brand-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 15px;
+    border: 1px solid #eee;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #333;
+    transition: box-shadow 0.3s, transform 0.3s;
+}
+
+.brand-item:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+}
+
+.brand-logo {
+    height: 60px;
+    width: 100%;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.brand-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-weight: bold;
+}
+
+.brand-count {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.featured-grid .brand-logo {
+    height: 70px;
+}
